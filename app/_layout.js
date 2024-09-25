@@ -1,4 +1,3 @@
-import { setStatusBarHidden } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SplashScreen, Slot } from 'expo-router';
 import { useFonts } from 'expo-font';
@@ -7,8 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 SplashScreen.preventAutoHideAsync();
 
 export default function Layout() {
-
-    setStatusBarHidden(true, 'fade');
 
 	const [fontsLoaded, fontError] = useFonts({
 		OpenSans: require('../assets/fonts/OpenSans-Regular.ttf'),
