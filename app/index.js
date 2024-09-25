@@ -1,13 +1,35 @@
-import { StyleSheet, Image, Text, View, Platform } from 'react-native';
+import {
+	StyleSheet,
+	Image,
+	Pressable,
+	Text,
+	View,
+	Platform,
+} from 'react-native';
 
 export default function Home() {
-
-    const hero = require('../assets/islandRecipes.png');
+	const hero = require('../assets/islandRecipes.png');
 
 	return (
 		<View style={styles.container}>
-            <Image source={hero} style={styles.heroStyle}></Image>
-			<Text style={{ fontFamily: 'OpenSans-BoldItalic', fontSize: 20 }}>Custom font is working because this is the new homepage!</Text>
+			<Image
+				source={hero}
+				style={styles.heroStyle}
+			></Image>
+			<View style={styles.buttonContainer}>
+				<Pressable style={styles.button}>
+					<Text style={styles.buttonText}>+ Add A Recipe</Text>
+				</Pressable>
+				<Pressable style={styles.button}>
+					<Text style={styles.buttonText}>Our Recipes</Text>
+				</Pressable>
+				<Pressable style={styles.button}>
+					<Text style={styles.buttonText}>Search</Text>
+				</Pressable>
+				<Pressable style={styles.button}>
+					<Text style={styles.buttonText}>Shopping List</Text>
+				</Pressable>
+			</View>
 		</View>
 	);
 }
@@ -17,14 +39,14 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: 'rgba(2, 169, 157, 1.0)',
 		alignItems: 'center',
-		justifyContent: 'flex-start',
+		justifyContent: 'space-around',
 	},
 	heroStyle: {
-		height: 135,
+		height: 200,
 		width: '100%',
 		alignSelf: 'center',
-        resizeMode: 'contain',
-        marginBottom: 20,
+		resizeMode: 'contain',
+		marginBottom: 20,
 		...Platform.select({
 			android: {
 				top: 5,
@@ -36,5 +58,33 @@ const styles = StyleSheet.create({
 				top: 5,
 			},
 		}),
+	},
+    buttonContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+    },
+	button: {
+		backgroundColor: '#fff',
+		padding: 10,
+		borderRadius: 10,
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.8,
+		shadowRadius: 2,
+		elevation: 5,
+		height: 100,
+		width: '50%',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginBottom: 25,
+	},
+	buttonText: {
+		fontSize: 30,
+		fontWeight: 'bold',
+		textAlign: 'center',
+		color: '#000',
 	},
 });
