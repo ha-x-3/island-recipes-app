@@ -6,6 +6,11 @@ import {
 	View,
 	Platform,
 } from 'react-native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faBookOpen } from '@fortawesome/free-solid-svg-icons/faBookOpen';
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
+import { faListCheck } from '@fortawesome/free-solid-svg-icons/faListCheck';
 
 export default function Home() {
 	const hero = require('../assets/islandRecipes.png');
@@ -18,16 +23,32 @@ export default function Home() {
 			></Image>
 			<View style={styles.buttonContainer}>
 				<Pressable style={styles.button}>
-					<Text style={styles.buttonText}>+ Add A Recipe</Text>
+					<Text style={styles.buttonText}>Add A Recipe</Text>
+					<FontAwesomeIcon
+						icon={faPlus}
+						size={32}
+					/>
 				</Pressable>
 				<Pressable style={styles.button}>
 					<Text style={styles.buttonText}>Our Recipes</Text>
+					<FontAwesomeIcon
+						icon={faBookOpen}
+						size={32}
+					/>
 				</Pressable>
 				<Pressable style={styles.button}>
 					<Text style={styles.buttonText}>Search</Text>
+					<FontAwesomeIcon
+						icon={faMagnifyingGlass}
+						size={32}
+					/>
 				</Pressable>
 				<Pressable style={styles.button}>
 					<Text style={styles.buttonText}>Shopping List</Text>
+					<FontAwesomeIcon
+						icon={faListCheck}
+						size={32}
+					/>
 				</Pressable>
 			</View>
 		</View>
@@ -77,9 +98,11 @@ const styles = StyleSheet.create({
 		height: 100,
 		width: '50%',
 		display: 'flex',
-		justifyContent: 'center',
+        flexDirection: 'row',
+		justifyContent: 'space-between',
 		alignItems: 'center',
 		marginBottom: 25,
+        paddingHorizontal: 25,
 	},
 	buttonText: {
 		fontSize: 30,
