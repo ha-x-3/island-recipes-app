@@ -6,6 +6,7 @@ import {
 	View,
 	Platform,
 } from 'react-native';
+import { Link } from 'expo-router';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBookOpen } from '@fortawesome/free-solid-svg-icons/faBookOpen';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -22,13 +23,16 @@ export default function Home() {
 				style={styles.heroStyle}
 			></Image>
 			<View style={styles.buttonContainer}>
-				<Pressable style={styles.button}>
-					<Text style={styles.buttonText}>Add A Recipe</Text>
-					<FontAwesomeIcon
-						icon={faPlus}
-						size={32}
-					/>
-				</Pressable>
+				<Link href='/addRecipe' asChild>
+					<Pressable style={styles.button}>
+						<Text style={styles.buttonText}>Add A Recipe</Text>
+						<FontAwesomeIcon
+							icon={faPlus}
+							size={32}
+						/>
+					</Pressable>
+				</Link>
+
 				<Pressable style={styles.button}>
 					<Text style={styles.buttonText}>Our Recipes</Text>
 					<FontAwesomeIcon
@@ -80,12 +84,12 @@ const styles = StyleSheet.create({
 			},
 		}),
 	},
-    buttonContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-    },
+	buttonContainer: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		width: '100%',
+	},
 	button: {
 		backgroundColor: '#fff',
 		padding: 10,
@@ -98,11 +102,11 @@ const styles = StyleSheet.create({
 		height: 100,
 		width: '50%',
 		display: 'flex',
-        flexDirection: 'row',
+		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		marginBottom: 25,
-        paddingHorizontal: 25,
+		paddingHorizontal: 25,
 	},
 	buttonText: {
 		fontSize: 30,
