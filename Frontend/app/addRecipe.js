@@ -12,8 +12,10 @@ export default function addRecipe() {
 				initialValues={{
 					recipeName: '',
 					yield: 0,
-					prepTime: '',
-					cookTime: '',
+					prepTimeHour: 0,
+					prepTimeMin: 0,
+					cookTimeHour: 0,
+					cookTimeMin: 0,
 					ingredients: [{ name: '', amount: '', unit: '' }],
 					instructions: '',
 					recipePhoto: '',
@@ -66,7 +68,31 @@ export default function addRecipe() {
 							<Text>{errors.yield}</Text>
 						)}
 
-
+						{/* Prep Time */}
+						<Text style={styles.inputLabel}>Prep Time</Text>
+						<View style={styles.prepTime}>
+							<TextInput
+								style={styles.inputTime}
+								onChangeText={handleChange('prepTimeHour')}
+								value={values.prepTimeHour}
+								placeholder='00'
+								keyboardType='numeric'
+							/>
+							{touched.prepTimeHour && errors.prepTimeHour && (
+								<Text>{errors.prepTimeHour}</Text>
+							)}
+							<Text style={styles.displayDecimal}>:</Text>
+							<TextInput
+								style={styles.inputTime}
+								onChangeText={handleChange('prepTimeMin')}
+								value={values.prepTimeMin}
+								placeholder='00'
+								keyboardType='numeric'
+							/>
+							{touched.prepTimeMin && errors.prepTimeMin && (
+								<Text>{errors.prepTimeMin}</Text>
+							)}
+						</View>
 					</View>
 				)}
 			</Formik>
@@ -95,7 +121,7 @@ const styles = StyleSheet.create({
 	},
 	inputLabel: {
 		fontSize: 16,
-		marginBottom: 5,
+		marginVertical: 10,
 	},
 	input: {
 		backgroundColor: 'white',
@@ -103,17 +129,20 @@ const styles = StyleSheet.create({
 		color: 'black',
 		borderColor: 'gray',
 		borderWidth: 1,
-		marginBottom: 10,
 		padding: 10,
 	},
-	button: {
-		backgroundColor: 'blue',
-		color: 'white',
-		padding: 10,
-		marginTop: 10,
-		borderRadius: 5,
+	inputTime: {
+		fontSize: 24,
+		width: 75,
+		backgroundColor: 'white',
 	},
-	buttonText: {
-		fontSize: 18,
+	prepTime: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		width: '100%',
+	},
+	displayDecimal: {
+		fontSize: 24,
+		marginHorizontal: 5,
 	},
 });
