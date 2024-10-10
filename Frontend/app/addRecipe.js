@@ -30,7 +30,7 @@ export default function addRecipe() {
 					errors,
 					touched,
 				}) => (
-					<View style={styles.inputContainer}>
+					<View style={styles.form}>
 						{/* Recipe Name */}
 						<Text style={styles.inputLabel}>Recipe Name</Text>
 						<TextInput
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
 		marginVertical: 20,
 		alignSelf: 'center',
 	},
-	inputContainer: {
+	form: {
 		width: '80%',
 	},
 	inputLabel: {
