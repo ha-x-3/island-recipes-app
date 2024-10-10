@@ -4,6 +4,39 @@ import NumericInput from 'react-native-numeric-input-pure-js';
 import { Formik, FieldArray } from 'formik';
 import * as Yup from 'yup';
 
+// Define a validation schema for the form
+const validationSchema = Yup.object().shape({
+	recipeName: Yup.string().required('Recipe name is required'),
+	yield: Yup.number().required('Yield is required').positive().integer(),
+	prepTimeHour: Yup.number()
+		.required('Prep time is required')
+		.positive()
+		.integer(),
+	prepTimeMin: Yup.number()
+		.required('Prep time is required')
+		.positive()
+		.integer(),
+	cookTimeHour: Yup.number()
+		.required('Cook time is required')
+		.positive()
+		.integer(),
+	cookTimeMin: Yup.number()
+		.required('Cook time is required')
+		.positive()
+		.integer(),
+	ingredients: Yup.array()
+		.of(
+			Yup.object().shape({
+				name: Yup.string().required('Ingredient name is required'),
+				amount: Yup.number().required('Amount is required').positive(),
+				unit: Yup.string().required('Unit is required'),
+			})
+		)
+		.min(1, 'At least one ingredient is required'),
+	instructions: Yup.string().required('Instructions are required'),
+	recipePhoto: Yup.string().required('Recipe photo is required'),
+});
+
 export default function addRecipe() {
 	return (
 		<View style={styles.container}>
@@ -20,6 +53,7 @@ export default function addRecipe() {
 					instructions: '',
 					recipePhoto: '',
 				}}
+				validationSchema={validationSchema}
 			>
 				{({
 					values,
