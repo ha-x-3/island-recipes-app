@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, Button, Alert } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Pressable, Alert } from 'react-native';
 import NumericInput from 'react-native-numeric-input-pure-js';
 import { Formik, FieldArray } from 'formik';
 import * as Yup from 'yup';
@@ -120,6 +120,106 @@ export default function addRecipe() {
 							)}
 						</View>
 
+						{/* Ingredients */}
+						<FieldArray
+							name='ingredients'
+							render={(arrayHelpers) => (
+								<View>
+									{values.ingredients.map(
+										(ingredient, index) => (
+											<View key={index}>
+												<Text>
+													Ingredient {index + 1}
+												</Text>
+
+												{/* Ingredient Name */}
+												<TextInput
+													style={styles.input}
+													onChangeText={handleChange(
+														'ingredients[${index}].name'
+													)}
+													value={ingredient.name}
+													placeholder='Ingredient Name'
+												/>
+												{touched.ingredients?.[index]
+													?.name &&
+													errors.ingredients?.[index]
+														?.name && (
+														<Text>
+															errors.ingredients[index].name
+														</Text>
+													)}
+
+												{/* Ingredient Amount */}
+												<TextInput
+													style={styles.input}
+													onChangeText={handleChange(
+														'ingredients[${index}].amount'
+													)}
+													value={ingredient.amount}
+													placeholder='Amount'
+													keyboardType='numeric'
+												/>
+												{touched.ingredients?.[index]
+													?.amount &&
+													errors.ingredients?.[index]
+														?.amount && (
+														<Text>
+															errors.ingredients[index].amount
+														</Text>
+													)}
+
+												{/* Ingredient Unit */}
+												<TextInput
+													style={styles.input}
+													onChangeText={handleChange(
+														'ingredients[${index}].unit'
+													)}
+													value={ingredient.unit}
+													placeholder='Unit (e.g. cups, tsp)'
+												/>
+												{touched.ingredients?.[index]
+													?.unit &&
+													errors.ingredients?.[index]
+														?.unit && (
+														<Text>
+															errors.ingredients[index].unit
+														</Text>
+													)}
+
+												{/* Remove Ingredient Button */}
+												<Pressable
+													style={styles.button}
+													title='Remove Ingredient'
+													onPress={() =>
+														arrayHelpers.remove(
+															index
+														)
+													}
+												>
+													<Text>Remove Ingredient</Text>
+												</Pressable>
+											</View>
+										)
+									)}
+
+									{/* Add Ingredient Button */}
+									<Pressable
+										style={styles.button}
+										title='Add Ingredient'
+										onPress={() =>
+											arrayHelpers.push({
+												name: '',
+												amount: '',
+												unit: '',
+											})
+										}
+									>
+										<Text>Add Ingredient</Text>
+									</Pressable>
+								</View>
+							)}
+						/>
 					</View>
 				)}
 			</Formik>
@@ -172,4 +272,15 @@ const styles = StyleSheet.create({
 		fontSize: 24,
 		marginHorizontal: 5,
 	},
+	button: {
+		backgroundColor: 'rgba(2, 169, 157, 1.0)',
+        padding: 15,
+        marginVertical: 20,
+        width: '100%',
+        alignSelf: 'center',
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: 'white',
+        color: 'white',
+	}
 });
