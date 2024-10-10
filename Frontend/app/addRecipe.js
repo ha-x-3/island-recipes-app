@@ -261,6 +261,7 @@ export default function addRecipe() {
 						{/* Instructions */}
 						<Text style={styles.inputLabel}>Instructions</Text>
 						<TextInput
+							style={styles.inputMulti}
 							onChangeText={handleChange('instructions')}
 							value={values.instructions}
 							placeholder='Instructions'
@@ -318,6 +319,10 @@ const styles = StyleSheet.create({
 		fontSize: 24,
 		width: 75,
 		backgroundColor: 'white',
+	},
+	inputMulti: {
+		backgroundColor: 'white',
+		height: 250,
 	},
 	prepTime: {
 		flexDirection: 'row',
