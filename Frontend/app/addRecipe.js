@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, Pressable, Alert } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Pressable, Button, Alert } from 'react-native';
 import NumericInput from 'react-native-numeric-input-pure-js';
 import { Formik, FieldArray } from 'formik';
 import * as Yup from 'yup';
@@ -121,6 +121,7 @@ export default function addRecipe() {
 						</View>
 
 						{/* Ingredients */}
+						<Text style={styles.inputLabel}>Ingredients</Text>
 						<FieldArray
 							name='ingredients'
 							render={(arrayHelpers) => (
@@ -197,7 +198,9 @@ export default function addRecipe() {
 														)
 													}
 												>
-													<Text>Remove Ingredient</Text>
+													<Text>
+														Remove Ingredient
+													</Text>
 												</Pressable>
 											</View>
 										)
@@ -219,6 +222,25 @@ export default function addRecipe() {
 									</Pressable>
 								</View>
 							)}
+						/>
+
+						{/* Instructions */}
+						<Text style={styles.inputLabel}>Instructions</Text>
+						<TextInput
+							onChangeText={handleChange('instructions')}
+							value={values.instructions}
+							placeholder='Instructions'
+							multiline
+						/>
+						{touched.instructions && errors.instructions && (
+							<Text>{errors.instructions}</Text>
+						)}
+
+						{/* Submit Button */}
+						<Button
+							title='Submit'
+							onPress={handleSubmit}
+							disabled={isSubmitting}
 						/>
 					</View>
 				)}
