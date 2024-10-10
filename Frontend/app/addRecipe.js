@@ -93,6 +93,33 @@ export default function addRecipe() {
 								<Text>{errors.prepTimeMin}</Text>
 							)}
 						</View>
+
+						{/* Cook Time */}
+						<Text style={styles.inputLabel}>Cook Time</Text>
+						<View style={styles.prepTime}>
+							<TextInput
+								style={styles.inputTime}
+								onChangeText={handleChange('cookTimeHour')}
+								value={values.cookTimeHour}
+								placeholder='00'
+								keyboardType='numeric'
+							/>
+							{touched.cookTimeHour && errors.cookTimeHour && (
+								<Text>{errors.cookTimeHour}</Text>
+							)}
+							<Text style={styles.displayDecimal}>:</Text>
+							<TextInput
+								style={styles.inputTime}
+								onChangeText={handleChange('cookTimeMin')}
+								value={values.cookTimeMin}
+								placeholder='00'
+								keyboardType='numeric'
+							/>
+							{touched.cookTimeMin && errors.cookTimeMin && (
+								<Text>{errors.cookTimeMin}</Text>
+							)}
+						</View>
+
 					</View>
 				)}
 			</Formik>
