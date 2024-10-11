@@ -4,6 +4,7 @@ import NumericInput from 'react-native-numeric-input-pure-js';
 import { Formik, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
 
 // Define a validation schema for the form
 const validationSchema = Yup.object().shape({
@@ -62,7 +63,51 @@ export default function addRecipe({ onSubmit }) {
 	};
 
 	const handleSubmit = async (values, { setSubmitting, resetForm }) => { 
+		 try {
+				setSubmitting(true);
 
+				// Upload image to Cloudinary
+				const formData = new FormData();
+				formData.append('file', {
+					uri: values.recipePhoto,
+					name: `${values.recipeName
+						.toLowerCase()
+						.replace(/ /g, '-')}.jpg`,
+					type: 'image/jpeg',
+				});
+				formData.append('upload_preset', 'z3xss4hi');
+
+				const cloudinaryResponse = await axios.post(
+					'https://api.cloudinary.com/v1_1/dv7bkdy36/image/upload',
+					formData
+				);
+
+				const imageUrl = cloudinaryResponse.data.secure_url;
+
+				// Submit form data to backend, including the Cloudinary image URL
+				const recipeData = {
+					recipeName: values.recipeName,
+					yield: values.yield,
+					prepTimeHour: values.prepTimeHour,
+					prepTimeMin: values.prepTimeMin,
+					cookTimeHour: values.cookTimeHour,
+					cookTimeMin: values.cookTimeMin,
+					ingredients: values.ingredients,
+					instructions: values.instructions,
+					recipePhoto: imageUrl,
+				};
+
+				await axios.post('BACKEND_API_URL/recipes', recipeData);
+
+				// Success feedback and reset form
+				Alert.alert('Recipe submitted successfully!');
+				resetForm();
+			} catch (error) {
+				Alert.alert('Error submitting recipe. Please try again.');
+				console.error(error);
+			} finally {
+				setSubmitting(false);
+			}
 	};
 
 	return (
@@ -204,7 +249,7 @@ export default function addRecipe({ onSubmit }) {
 												<TextInput
 													style={styles.input}
 													onChangeText={handleChange(
-														'ingredients[${index}].name'
+														`ingredients[${index}].name`
 													)}
 													value={ingredient.name}
 													placeholder='Ingredient Name'
@@ -217,13 +262,13 @@ export default function addRecipe({ onSubmit }) {
 														<Text>
 															errors.ingredients[index].name
 														</Text>
-													)}
+												)}
 
 												{/* Ingredient Amount */}
 												<TextInput
 													style={styles.input}
 													onChangeText={handleChange(
-														'ingredients[${index}].amount'
+														`ingredients[${index}].amount`
 													)}
 													value={ingredient.amount}
 													placeholder='Amount'
@@ -237,13 +282,13 @@ export default function addRecipe({ onSubmit }) {
 														<Text>
 															errors.ingredients[index].amount
 														</Text>
-													)}
+												)}
 
 												{/* Ingredient Unit */}
 												<TextInput
 													style={styles.input}
 													onChangeText={handleChange(
-														'ingredients[${index}].unit'
+														`ingredients[${index}].unit`
 													)}
 													value={ingredient.unit}
 													placeholder='Unit (e.g. cups, tsp)'
@@ -256,12 +301,11 @@ export default function addRecipe({ onSubmit }) {
 														<Text>
 															errors.ingredients[index].unit
 														</Text>
-													)}
+												)}
 
 												{/* Remove Ingredient Button */}
 												<Pressable
 													style={styles.button}
-													title='Remove Ingredient'
 													onPress={() =>
 														arrayHelpers.remove(
 															index
@@ -279,7 +323,6 @@ export default function addRecipe({ onSubmit }) {
 									{/* Add Ingredient Button */}
 									<Pressable
 										style={styles.button}
-										title='Add Ingredient'
 										onPress={() =>
 											arrayHelpers.push({
 												name: '',
