@@ -73,6 +73,7 @@ export default function addRecipe() {
 							value={values.recipeName}
 							placeholder='Recipe Name'
 							inputMode='text'
+							placeholderTextColor='gray'
 						/>
 						{touched.recipeName && errors.recipeName && (
 							<Text>{errors.recipeName}</Text>
@@ -111,6 +112,7 @@ export default function addRecipe() {
 								value={values.prepTimeHour}
 								placeholder='00'
 								keyboardType='numeric'
+								placeholderTextColor='gray'
 							/>
 							{touched.prepTimeHour && errors.prepTimeHour && (
 								<Text>{errors.prepTimeHour}</Text>
@@ -122,6 +124,7 @@ export default function addRecipe() {
 								value={values.prepTimeMin}
 								placeholder='00'
 								keyboardType='numeric'
+								placeholderTextColor='gray'
 							/>
 							{touched.prepTimeMin && errors.prepTimeMin && (
 								<Text>{errors.prepTimeMin}</Text>
@@ -137,6 +140,7 @@ export default function addRecipe() {
 								value={values.cookTimeHour}
 								placeholder='00'
 								keyboardType='numeric'
+								placeholderTextColor='gray'
 							/>
 							{touched.cookTimeHour && errors.cookTimeHour && (
 								<Text>{errors.cookTimeHour}</Text>
@@ -148,6 +152,7 @@ export default function addRecipe() {
 								value={values.cookTimeMin}
 								placeholder='00'
 								keyboardType='numeric'
+								placeholderTextColor='gray'
 							/>
 							{touched.cookTimeMin && errors.cookTimeMin && (
 								<Text>{errors.cookTimeMin}</Text>
@@ -175,6 +180,7 @@ export default function addRecipe() {
 													)}
 													value={ingredient.name}
 													placeholder='Ingredient Name'
+													placeholderTextColor='gray'
 												/>
 												{touched.ingredients?.[index]
 													?.name &&
@@ -194,6 +200,7 @@ export default function addRecipe() {
 													value={ingredient.amount}
 													placeholder='Amount'
 													keyboardType='numeric'
+													placeholderTextColor='gray'
 												/>
 												{touched.ingredients?.[index]
 													?.amount &&
@@ -212,6 +219,7 @@ export default function addRecipe() {
 													)}
 													value={ingredient.unit}
 													placeholder='Unit (e.g. cups, tsp)'
+													placeholderTextColor='gray'
 												/>
 												{touched.ingredients?.[index]
 													?.unit &&
@@ -266,6 +274,7 @@ export default function addRecipe() {
 							value={values.instructions}
 							placeholder='Instructions'
 							multiline
+							placeholderTextColor='gray'
 						/>
 						{touched.instructions && errors.instructions && (
 							<Text>{errors.instructions}</Text>
@@ -309,7 +318,6 @@ const styles = StyleSheet.create({
 	},
 	input: {
 		backgroundColor: 'white',
-		placeholderTextColor: 'gray',
 		color: 'black',
 		borderColor: 'gray',
 		borderWidth: 1,
