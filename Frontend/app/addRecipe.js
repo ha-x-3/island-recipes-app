@@ -3,6 +3,7 @@ import { StyleSheet, Text, TextInput, View, Pressable, Button, Alert } from 'rea
 import NumericInput from 'react-native-numeric-input-pure-js';
 import { Formik, FieldArray } from 'formik';
 import * as Yup from 'yup';
+import * as ImagePicker from 'expo-image-picker';
 
 // Define a validation schema for the form
 const validationSchema = Yup.object().shape({
@@ -37,7 +38,33 @@ const validationSchema = Yup.object().shape({
 	recipePhoto: Yup.string().required('Recipe photo is required'),
 });
 
-export default function addRecipe() {
+export default function addRecipe({ onSubmit }) {
+
+	//Function to pick image for recipe
+	const pickImage = async (setFieldValue) => { 
+		const { status } =
+			await ImagePicker.requestMediaLibraryPermissionsAsync();
+		if (status !== 'granted') {
+			Alert.alert('Permission Denied', 'Please allow access to photos.');
+			return;
+		}
+
+		const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [4, 3],
+			quality: 1,
+		});
+
+		if (!result.canceled && result.assets?.length > 0) {
+			setFieldValue('recipePhoto', result.assets[0].uri);
+		}
+	};
+
+	const handleSubmit = async (values, { setSubmitting, resetForm }) => { 
+
+	};
+
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Add A New Recipe</Text>
@@ -54,6 +81,7 @@ export default function addRecipe() {
 					recipePhoto: '',
 				}}
 				validationSchema={validationSchema}
+				onSubmit={handleSubmit}
 			>
 				{({
 					values,
@@ -278,6 +306,20 @@ export default function addRecipe() {
 						/>
 						{touched.instructions && errors.instructions && (
 							<Text>{errors.instructions}</Text>
+						)}
+
+						{/* Recipe Photo */}
+						<Button
+							title='Pick a recipe photo'
+							onPress={() => pickImage(setFieldValue)}
+						/>
+						{values.recipePhoto ? (
+							<Text key='selected'>Photo selected</Text>
+						) : (
+							<Text key='not-selected'>No photo selected</Text>
+						)}
+						{touched.recipePhoto && errors.recipePhoto && (
+							<Text>{errors.recipePhoto}</Text>
 						)}
 
 						{/* Submit Button */}
