@@ -104,7 +104,6 @@ export default function addRecipe({ onSubmit }) {
 				instructions: values.instructions,
 				recipePhoto: imageUrl,
 			};
-			console.log(recipeData);
 			await axios.post('http://localhost:8080/api/recipes', recipeData);
 
 			// Success feedback and reset form
