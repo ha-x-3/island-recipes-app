@@ -102,7 +102,7 @@ export default function addRecipe({ onSubmit }) {
 				cookTimeMin: values.cookTimeMin,
 				ingredients: values.ingredients,
 				instructions: values.instructions,
-				recipePhoto: imageUrl,
+				recipePhotoUrl: imageUrl,
 			};
 			await axios.post('http://localhost:8080/api/recipes', recipeData);
 
