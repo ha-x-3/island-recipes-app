@@ -21,19 +21,19 @@ const validationSchema = Yup.object().shape({
 	yield: Yup.number().required('Yield is required').positive().integer(),
 	prepTimeHour: Yup.number()
 		.required('Prep time is required')
-		.positive()
+		.moreThan(0)
 		.integer(),
 	prepTimeMin: Yup.number()
 		.required('Prep time is required')
-		.positive()
+		.moreThan(0)
 		.integer(),
 	cookTimeHour: Yup.number()
 		.required('Cook time is required')
-		.positive()
+		.moreThan(0)
 		.integer(),
 	cookTimeMin: Yup.number()
 		.required('Cook time is required')
-		.positive()
+		.moreThan(0)
 		.integer(),
 	ingredients: Yup.array()
 		.of(
