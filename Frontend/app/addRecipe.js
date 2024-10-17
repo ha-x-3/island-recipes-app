@@ -5,7 +5,6 @@ import {
 	TextInput,
 	View,
 	Pressable,
-	Button,
 	Alert,
 	ScrollView,
 } from 'react-native';
@@ -19,18 +18,10 @@ import axios from 'axios';
 const validationSchema = Yup.object().shape({
 	recipeName: Yup.string().required('Recipe name is required'),
 	yield: Yup.number().required('Yield is required').positive().integer(),
-	prepTimeHour: Yup.number()
-		.required('Prep time is required')
-		.integer(),
-	prepTimeMin: Yup.number()
-		.required('Prep time is required')
-		.integer(),
-	cookTimeHour: Yup.number()
-		.required('Cook time is required')
-		.integer(),
-	cookTimeMin: Yup.number()
-		.required('Cook time is required')
-		.integer(),
+	prepTimeHour: Yup.number().required('Prep time is required').integer(),
+	prepTimeMin: Yup.number().required('Prep time is required').integer(),
+	cookTimeHour: Yup.number().required('Cook time is required').integer(),
+	cookTimeMin: Yup.number().required('Cook time is required').integer(),
 	ingredients: Yup.array()
 		.of(
 			Yup.object().shape({
@@ -102,7 +93,6 @@ export default function addRecipe({ onSubmit }) {
 			};
 			await axios.post('http://localhost:8080/api/recipes', recipeData);
 
-			// Success feedback and reset form
 			Alert.alert('Recipe submitted successfully!');
 			resetForm();
 		} catch (error) {
@@ -149,11 +139,12 @@ export default function addRecipe({ onSubmit }) {
 								onChangeText={handleChange('recipeName')}
 								value={values.recipeName}
 								placeholder='Recipe Name'
-								inputMode='text'
 								placeholderTextColor='gray'
 							/>
 							{touched.recipeName && errors.recipeName && (
-								<Text>{errors.recipeName}</Text>
+								<Text style={styles.errorText}>
+									{errors.recipeName}
+								</Text>
 							)}
 
 							{/* Yield */}
@@ -179,7 +170,9 @@ export default function addRecipe({ onSubmit }) {
 								leftButtonBackgroundColor='rgba(2, 169, 157, 1.0)'
 							/>
 							{touched.yield && errors.yield && (
-								<Text>{errors.yield}</Text>
+								<Text style={styles.errorText}>
+									{errors.yield}
+								</Text>
 							)}
 
 							{/* Prep Time */}
@@ -188,28 +181,31 @@ export default function addRecipe({ onSubmit }) {
 								<TextInput
 									style={styles.inputTime}
 									onChangeText={handleChange('prepTimeHour')}
-									value={values.prepTimeHour}
+									value={String(values.prepTimeHour)}
 									placeholder='00'
 									keyboardType='numeric'
 									placeholderTextColor='gray'
 								/>
-								{touched.prepTimeHour &&
-									errors.prepTimeHour && (
-										<Text>{errors.prepTimeHour}</Text>
-									)}
 								<Text style={styles.displayDecimal}>:</Text>
 								<TextInput
 									style={styles.inputTime}
 									onChangeText={handleChange('prepTimeMin')}
-									value={values.prepTimeMin}
+									value={String(values.prepTimeMin)}
 									placeholder='00'
 									keyboardType='numeric'
 									placeholderTextColor='gray'
 								/>
-								{touched.prepTimeMin && errors.prepTimeMin && (
-									<Text>{errors.prepTimeMin}</Text>
-								)}
 							</View>
+							{touched.prepTimeHour && errors.prepTimeHour && (
+								<Text style={styles.errorText}>
+									{errors.prepTimeHour}
+								</Text>
+							)}
+							{touched.prepTimeMin && errors.prepTimeMin && (
+								<Text style={styles.errorText}>
+									{errors.prepTimeMin}
+								</Text>
+							)}
 
 							{/* Cook Time */}
 							<Text style={styles.inputLabel}>Cook Time</Text>
@@ -217,28 +213,31 @@ export default function addRecipe({ onSubmit }) {
 								<TextInput
 									style={styles.inputTime}
 									onChangeText={handleChange('cookTimeHour')}
-									value={values.cookTimeHour}
+									value={String(values.cookTimeHour)}
 									placeholder='00'
 									keyboardType='numeric'
 									placeholderTextColor='gray'
 								/>
-								{touched.cookTimeHour &&
-									errors.cookTimeHour && (
-										<Text>{errors.cookTimeHour}</Text>
-									)}
 								<Text style={styles.displayDecimal}>:</Text>
 								<TextInput
 									style={styles.inputTime}
 									onChangeText={handleChange('cookTimeMin')}
-									value={values.cookTimeMin}
+									value={String(values.cookTimeMin)}
 									placeholder='00'
 									keyboardType='numeric'
 									placeholderTextColor='gray'
 								/>
-								{touched.cookTimeMin && errors.cookTimeMin && (
-									<Text>{errors.cookTimeMin}</Text>
-								)}
 							</View>
+							{touched.cookTimeHour && errors.cookTimeHour && (
+								<Text style={styles.errorText}>
+									{errors.cookTimeHour}
+								</Text>
+							)}
+							{touched.cookTimeMin && errors.cookTimeMin && (
+								<Text style={styles.errorText}>
+									{errors.cookTimeMin}
+								</Text>
+							)}
 
 							{/* Ingredients */}
 							<Text style={styles.inputLabel}>Ingredients</Text>
@@ -248,8 +247,17 @@ export default function addRecipe({ onSubmit }) {
 									<View>
 										{values.ingredients.map(
 											(ingredient, index) => (
-												<View key={index}>
-													<Text>
+												<View
+													key={index}
+													style={
+														styles.ingredientContainer
+													}
+												>
+													<Text
+														style={
+															styles.ingredientLabel
+														}
+													>
 														Ingredient {index + 1}
 													</Text>
 
@@ -269,20 +277,29 @@ export default function addRecipe({ onSubmit }) {
 														errors.ingredients?.[
 															index
 														]?.name && (
-															<Text>
-																errors.ingredients[index].name
+															<Text
+																style={
+																	styles.errorText
+																}
+															>
+																{
+																	errors
+																		.ingredients[
+																		index
+																	].name
+																}
 															</Text>
 														)}
 
-													{/* Ingredient Amount */}
+													{/* Amount */}
 													<TextInput
 														style={styles.input}
 														onChangeText={handleChange(
 															`ingredients[${index}].amount`
 														)}
-														value={
+														value={String(
 															ingredient.amount
-														}
+														)}
 														placeholder='Amount'
 														keyboardType='numeric'
 														placeholderTextColor='gray'
@@ -293,12 +310,21 @@ export default function addRecipe({ onSubmit }) {
 														errors.ingredients?.[
 															index
 														]?.amount && (
-															<Text>
-																errors.ingredients[index].amount
+															<Text
+																style={
+																	styles.errorText
+																}
+															>
+																{
+																	errors
+																		.ingredients[
+																		index
+																	].amount
+																}
 															</Text>
 														)}
 
-													{/* Ingredient Unit */}
+													{/* Unit */}
 													<TextInput
 														style={styles.input}
 														onChangeText={handleChange(
@@ -314,31 +340,44 @@ export default function addRecipe({ onSubmit }) {
 														errors.ingredients?.[
 															index
 														]?.unit && (
-															<Text>
-																errors.ingredients[index].unit
+															<Text
+																style={
+																	styles.errorText
+																}
+															>
+																{
+																	errors
+																		.ingredients[
+																		index
+																	].unit
+																}
 															</Text>
 														)}
 
-													{/* Remove Ingredient Button */}
+													{/* Remove Button */}
 													<Pressable
-														style={styles.button}
+														style={
+															styles.removeButton
+														}
 														onPress={() =>
 															arrayHelpers.remove(
 																index
 															)
 														}
 													>
-														<Text>
-															Remove Ingredient
+														<Text
+															style={
+																styles.removeButtonText
+															}
+														>
+															Remove
 														</Text>
 													</Pressable>
 												</View>
 											)
 										)}
-
-										{/* Add Ingredient Button */}
 										<Pressable
-											style={styles.button}
+											style={styles.addButton}
 											onPress={() =>
 												arrayHelpers.push({
 													name: '',
@@ -347,7 +386,9 @@ export default function addRecipe({ onSubmit }) {
 												})
 											}
 										>
-											<Text>Add Ingredient</Text>
+											<Text style={styles.addButtonText}>
+												Add Ingredient
+											</Text>
 										</Pressable>
 									</View>
 								)}
@@ -356,39 +397,47 @@ export default function addRecipe({ onSubmit }) {
 							{/* Instructions */}
 							<Text style={styles.inputLabel}>Instructions</Text>
 							<TextInput
-								style={styles.inputMulti}
+								style={styles.input}
 								onChangeText={handleChange('instructions')}
 								value={values.instructions}
 								placeholder='Instructions'
-								multiline
 								placeholderTextColor='gray'
+								multiline
 							/>
 							{touched.instructions && errors.instructions && (
-								<Text>{errors.instructions}</Text>
-							)}
-
-							{/* Recipe Photo */}
-							<Button
-								title='Pick a recipe photo'
-								onPress={() => pickImage(setFieldValue)}
-							/>
-							{values.recipePhoto ? (
-								<Text key='selected'>Photo selected</Text>
-							) : (
-								<Text key='not-selected'>
-									No photo selected
+								<Text style={styles.errorText}>
+									{errors.instructions}
 								</Text>
 							)}
+
+							{/* Photo Picker */}
+							<Text style={styles.inputLabel}>Recipe Photo</Text>
+							<Pressable
+								style={styles.photoPicker}
+								onPress={() => pickImage(setFieldValue)}
+							>
+								<Text style={styles.photoPickerText}>
+									{values.recipePhoto
+										? 'Change Photo'
+										: 'Pick a Photo'}
+								</Text>
+							</Pressable>
 							{touched.recipePhoto && errors.recipePhoto && (
-								<Text>{errors.recipePhoto}</Text>
+								<Text style={styles.errorText}>
+									{errors.recipePhoto}
+								</Text>
 							)}
 
 							{/* Submit Button */}
-							<Button
-								title='Submit'
+							<Pressable
+								style={styles.submitButton}
 								onPress={handleSubmit}
 								disabled={isSubmitting}
-							/>
+							>
+								<Text style={styles.submitButtonText}>
+									Submit Recipe
+								</Text>
+							</Pressable>
 						</View>
 					)}
 				</Formik>
@@ -400,65 +449,115 @@ export default function addRecipe({ onSubmit }) {
 const styles = StyleSheet.create({
 	scrollContainer: {
 		flexGrow: 1,
+		padding: 16,
 		backgroundColor: 'rgba(2, 169, 157, 1.0)',
-		justifyContent: 'center',
-		paddingBottom: 20,
 	},
 	container: {
 		flex: 1,
+		backgroundColor: 'rgba(2, 169, 157, 1.0)',
 		padding: 20,
-		display: 'flex',
-		flexDirection: 'column',
-		justifyContent: 'flex-start',
-		alignItems: 'center',
 	},
 	title: {
 		fontSize: 24,
 		fontWeight: 'bold',
-		marginVertical: 20,
-		alignSelf: 'center',
+		textAlign: 'center',
+		marginBottom: 20,
+		color: '#2B2B2B',
 	},
 	form: {
-		width: '80%',
+		marginTop: 10,
 	},
 	inputLabel: {
 		fontSize: 16,
-		marginVertical: 10,
+		fontWeight: 'bold',
+		marginBottom: 8,
+		color: '#2B2B2B',
 	},
 	input: {
-		backgroundColor: 'white',
-		color: 'black',
-		borderColor: 'gray',
+		height: 40,
+		borderColor: '#CED4DA',
 		borderWidth: 1,
-		padding: 10,
-	},
-	inputTime: {
-		fontSize: 24,
-		width: 75,
-		backgroundColor: 'white',
-	},
-	inputMulti: {
-		backgroundColor: 'white',
-		height: 250,
+		borderRadius: 5,
+		paddingHorizontal: 10,
+		marginBottom: 12,
+		backgroundColor: '#F2F2F2',
+		color: '#2B2B2B',
 	},
 	prepTime: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		width: '100%',
+	},
+	inputTime: {
+		height: 40,
+		width: 80,
+		borderColor: '#CED4DA',
+		borderWidth: 1,
+		borderRadius: 5,
+		paddingHorizontal: 10,
+		marginBottom: 12,
+		backgroundColor: '#F2F2F2',
+		color: '#2B2B2B',
+		textAlign: 'center',
 	},
 	displayDecimal: {
 		fontSize: 24,
 		marginHorizontal: 5,
+		color: '#2B2B2B',
 	},
-	button: {
-		backgroundColor: 'rgba(2, 169, 157, 1.0)',
-		padding: 15,
-		marginVertical: 20,
-		width: '100%',
-		alignSelf: 'center',
+	ingredientContainer: {
+		borderBottomColor: '#CED4DA',
+		borderBottomWidth: 1,
+		paddingBottom: 10,
+		marginBottom: 10,
+	},
+	ingredientLabel: {
+		fontWeight: 'bold',
+		marginBottom: 5,
+		color: '#2B2B2B',
+	},
+	removeButton: {
+		backgroundColor: '#FF6347',
 		borderRadius: 5,
-		borderWidth: 1,
-		borderColor: 'white',
+		padding: 8,
+		marginTop: 8,
+	},
+	removeButtonText: {
 		color: 'white',
+		textAlign: 'center',
+	},
+	addButton: {
+		backgroundColor: '#2DAA6E',
+		borderRadius: 5,
+		padding: 8,
+		marginTop: 12,
+	},
+	addButtonText: {
+		color: 'white',
+		textAlign: 'center',
+	},
+	errorText: {
+		color: 'red',
+		marginBottom: 10,
+	},
+	photoPicker: {
+		backgroundColor: '#E9ECEF',
+		borderRadius: 5,
+		padding: 10,
+		alignItems: 'center',
+		marginBottom: 10,
+	},
+	photoPickerText: {
+		color: '#495057',
+	},
+	submitButton: {
+		backgroundColor: '#007BFF',
+		borderRadius: 5,
+		paddingVertical: 12,
+		alignItems: 'center',
+		marginTop: 20,
+	},
+	submitButtonText: {
+		color: 'white',
+		fontSize: 18,
 	},
 });
