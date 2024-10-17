@@ -114,11 +114,11 @@ export default function addRecipe({ onSubmit }) {
 				<Formik
 					initialValues={{
 						recipeName: '',
-						yield: 0,
-						prepTimeHour: 0,
-						prepTimeMin: 0,
-						cookTimeHour: 0,
-						cookTimeMin: 0,
+						yield: 4,
+						prepTimeHour: '',
+						prepTimeMin: '',
+						cookTimeHour: '',
+						cookTimeMin: '',
 						ingredients: [{ name: '', amount: '', unit: '' }],
 						instructions: '',
 						recipePhoto: '',
@@ -186,7 +186,7 @@ export default function addRecipe({ onSubmit }) {
 									style={styles.inputTime}
 									onChangeText={handleChange('prepTimeHour')}
 									value={String(values.prepTimeHour)}
-									placeholder='00'
+									placeholder='Hours'
 									keyboardType='numeric'
 									placeholderTextColor='gray'
 								/>
@@ -195,7 +195,7 @@ export default function addRecipe({ onSubmit }) {
 									style={styles.inputTime}
 									onChangeText={handleChange('prepTimeMin')}
 									value={String(values.prepTimeMin)}
-									placeholder='00'
+									placeholder='Minutes'
 									keyboardType='numeric'
 									placeholderTextColor='gray'
 								/>
@@ -218,7 +218,7 @@ export default function addRecipe({ onSubmit }) {
 									style={styles.inputTime}
 									onChangeText={handleChange('cookTimeHour')}
 									value={String(values.cookTimeHour)}
-									placeholder='00'
+									placeholder='Hours'
 									keyboardType='numeric'
 									placeholderTextColor='gray'
 								/>
@@ -227,7 +227,7 @@ export default function addRecipe({ onSubmit }) {
 									style={styles.inputTime}
 									onChangeText={handleChange('cookTimeMin')}
 									value={String(values.cookTimeMin)}
-									placeholder='00'
+									placeholder='Minutes'
 									keyboardType='numeric'
 									placeholderTextColor='gray'
 								/>
