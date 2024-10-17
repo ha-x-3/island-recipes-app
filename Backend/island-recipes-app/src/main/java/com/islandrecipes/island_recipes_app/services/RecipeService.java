@@ -5,6 +5,8 @@ import com.islandrecipes.island_recipes_app.repositories.RecipeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class RecipeService {
 
@@ -17,6 +19,10 @@ public class RecipeService {
 
     public Recipe saveRecipe(Recipe recipe) {
         return recipeRepository.save(recipe);
+    }
+
+    public List<Recipe> getAllRecipes() {
+        return recipeRepository.findAll();
     }
 
 }
