@@ -400,12 +400,12 @@ export default function addRecipe({ onSubmit }) {
 const styles = StyleSheet.create({
 	scrollContainer: {
 		flexGrow: 1,
+		backgroundColor: 'rgba(2, 169, 157, 1.0)',
 		justifyContent: 'center',
 		paddingBottom: 20,
 	},
 	container: {
 		flex: 1,
-		backgroundColor: 'rgba(2, 169, 157, 1.0)',
 		padding: 20,
 		display: 'flex',
 		flexDirection: 'column',
