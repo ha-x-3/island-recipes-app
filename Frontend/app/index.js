@@ -23,36 +23,54 @@ export default function Home() {
 				style={styles.heroStyle}
 			></Image>
 			<View style={styles.buttonContainer}>
-				<Link href='/addRecipe' asChild>
+				<Link
+					href='/addRecipe'
+					asChild
+				>
 					<Pressable style={styles.button}>
-						<Text style={styles.buttonText}>Add A Recipe</Text>
-						<FontAwesomeIcon
-							icon={faPlus}
-							size={32}
-						/>
+						<View style={styles.buttonContent}>
+							<Text style={styles.buttonText}>Add A Recipe</Text>
+							<FontAwesomeIcon
+								icon={faPlus}
+								size={32}
+							/>
+						</View>
+					</Pressable>
+				</Link>
+
+				<Link
+					href='/ourRecipes'
+					asChild
+				>
+					<Pressable style={styles.button}>
+						<View style={styles.buttonContent}>
+							<Text style={styles.buttonText}>Our Recipes</Text>
+							<FontAwesomeIcon
+								icon={faBookOpen}
+								size={32}
+							/>
+						</View>
 					</Pressable>
 				</Link>
 
 				<Pressable style={styles.button}>
-					<Text style={styles.buttonText}>Our Recipes</Text>
-					<FontAwesomeIcon
-						icon={faBookOpen}
-						size={32}
-					/>
+					<View style={styles.buttonContent}>
+						<Text style={styles.buttonText}>Search</Text>
+						<FontAwesomeIcon
+							icon={faMagnifyingGlass}
+							size={32}
+						/>
+					</View>
 				</Pressable>
+
 				<Pressable style={styles.button}>
-					<Text style={styles.buttonText}>Search</Text>
-					<FontAwesomeIcon
-						icon={faMagnifyingGlass}
-						size={32}
-					/>
-				</Pressable>
-				<Pressable style={styles.button}>
-					<Text style={styles.buttonText}>Shopping List</Text>
-					<FontAwesomeIcon
-						icon={faListCheck}
-						size={32}
-					/>
+					<View style={styles.buttonContent}>
+						<Text style={styles.buttonText}>Shopping List</Text>
+						<FontAwesomeIcon
+							icon={faListCheck}
+							size={32}
+						/>
+					</View>
 				</Pressable>
 			</View>
 		</View>
@@ -107,6 +125,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		marginBottom: 25,
 		paddingHorizontal: 25,
+	},
+	buttonContent: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		width: '100%',
 	},
 	buttonText: {
 		fontSize: 30,
