@@ -374,7 +374,7 @@ export default function addRecipe({ onSubmit }) {
 																styles.removeButtonText
 															}
 														>
-															Remove
+															Remove Ingredient
 														</Text>
 													</Pressable>
 												</View>
