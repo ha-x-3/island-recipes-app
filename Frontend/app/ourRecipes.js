@@ -11,7 +11,7 @@ import {
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 
-const OurRecipes = () => {
+export default function OurRecipes() {
 	const [recipes, setRecipes] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const router = useRouter();
@@ -83,7 +83,7 @@ const OurRecipes = () => {
 			/>
 		</View>
 	);
-};
+}
 
 const styles = StyleSheet.create({
 	container: {
@@ -131,5 +131,3 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 });
-
-export default OurRecipes;
