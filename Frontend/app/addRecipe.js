@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
 	StyleSheet,
 	Text,
@@ -7,6 +7,7 @@ import {
 	Pressable,
 	Alert,
 	ScrollView,
+	Image
 } from 'react-native';
 import NumericInput from 'react-native-numeric-input-pure-js';
 import { Formik, FieldArray } from 'formik';
@@ -36,6 +37,8 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function addRecipe({ onSubmit }) {
+	const [imageUri, setImageUri] = useState(null);
+
 	//Function to pick image for recipe
 	const pickImage = async (setFieldValue) => {
 		const { status } =
@@ -53,6 +56,7 @@ export default function addRecipe({ onSubmit }) {
 		});
 
 		if (!result.canceled && result.assets?.length > 0) {
+			setImageUri(result.assets[0].uri);
 			setFieldValue('recipePhoto', result.assets[0].uri);
 		}
 	};
@@ -422,6 +426,15 @@ export default function addRecipe({ onSubmit }) {
 										: 'Pick a Photo'}
 								</Text>
 							</Pressable>
+
+							{/* Image Preview */}
+							{imageUri && (
+								<Image
+									source={{ uri: imageUri }}
+									style={styles.imagePreview}
+								/>
+							)}
+
 							{touched.recipePhoto && errors.recipePhoto && (
 								<Text style={styles.errorText}>
 									{errors.recipePhoto}
@@ -548,6 +561,12 @@ const styles = StyleSheet.create({
 	},
 	photoPickerText: {
 		color: '#495057',
+	},
+	imagePreview: {
+		width: 100,
+		height: 100,
+		borderRadius: 8,
+		marginTop: 10,
 	},
 	submitButton: {
 		backgroundColor: '#007BFF',
