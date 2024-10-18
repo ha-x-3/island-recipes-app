@@ -40,4 +40,9 @@ public class RecipeController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/search")
+    public List<Recipe> searchRecipes(@RequestParam String query) {
+        return recipeService.searchRecipes(query);
+    }
+
 }
