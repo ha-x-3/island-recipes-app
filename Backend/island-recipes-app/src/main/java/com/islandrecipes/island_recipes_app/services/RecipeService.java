@@ -30,4 +30,8 @@ public class RecipeService {
         return recipeRepository.findById(id);
     }
 
+    public List<Recipe> searchRecipes(String searchTerm) {
+        return recipeRepository.searchRecipesByNameOrIngredient(searchTerm);
+    }
+
 }
