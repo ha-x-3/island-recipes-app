@@ -53,15 +53,20 @@ export default function Home() {
 					</Pressable>
 				</Link>
 
-				<Pressable style={styles.button}>
-					<View style={styles.buttonContent}>
-						<Text style={styles.buttonText}>Search</Text>
-						<FontAwesomeIcon
-							icon={faMagnifyingGlass}
-							size={32}
-						/>
-					</View>
-				</Pressable>
+				<Link
+					href='/search'
+					asChild
+				>
+					<Pressable style={styles.button}>
+						<View style={styles.buttonContent}>
+							<Text style={styles.buttonText}>Search</Text>
+							<FontAwesomeIcon
+								icon={faMagnifyingGlass}
+								size={32}
+							/>
+						</View>
+					</Pressable>
+				</Link>
 
 				<Pressable style={styles.button}>
 					<View style={styles.buttonContent}>
