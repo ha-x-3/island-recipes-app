@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { SplashScreen, Slot } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Header from './header.js';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,6 +28,7 @@ export default function Layout() {
 
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
+		    <Header title='Island Recipes' />
 			<Slot />
 		</SafeAreaView>
 	);
