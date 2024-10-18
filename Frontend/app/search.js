@@ -3,6 +3,7 @@ import {
 	View,
 	TextInput,
 	Button,
+	Pressable,
 	FlatList,
 	Text,
 	Image,
@@ -70,12 +71,16 @@ export default function Search() {
 				placeholder='Search by recipe name or ingredient'
 				value={query}
 				onChangeText={setQuery}
+				placeholderTextColor='#2B2B2B'
 			/>
-			<Button
+			<Pressable
+                style={styles.searchButton}
 				title='Search'
 				onPress={searchRecipes}
 				disabled={loading || !query.trim()}
-			/>
+			>
+				<Text style={styles.searchButtonText}>Search</Text>
+			</Pressable>
 
 			{loading && <Text>Loading...</Text>}
 			{error && <Text style={styles.errorText}>{error}</Text>}
@@ -88,22 +93,35 @@ export default function Search() {
 			/>
 		</View>
 	);
-};
+}
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		padding: 20,
-		backgroundColor: '#fff',
+		backgroundColor: 'rgba(2, 169, 157, 1.0)',
 	},
 	searchInput: {
 		height: 40,
-		borderColor: 'gray',
+		borderColor: '#CED4DA',
 		borderWidth: 1,
-		marginBottom: 10,
-		paddingHorizontal: 8,
-		borderRadius: 4,
+		borderRadius: 5,
+		paddingHorizontal: 10,
+		marginVertical: 12,
+		backgroundColor: '#F2F2F2',
 	},
+	searchButton: {
+		backgroundColor: '#2DAA6E',
+		borderRadius: 5,
+		padding: 8,
+		marginTop: 12,
+        alignSelf: 'center',
+        width: '50%',
+	},
+    searchButtonText: {
+        color: 'white',
+        textAlign: 'center',
+    },
 	recipeItem: {
 		flexDirection: 'row',
 		marginBottom: 20,
