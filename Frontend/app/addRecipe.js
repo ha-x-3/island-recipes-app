@@ -61,6 +61,39 @@ export default function addRecipe({ onSubmit }) {
 		}
 	};
 
+	//Function to retrieve nutritional information
+	const sendIngredientsToEdamam = async (ingredients) => {
+		const formattedIngredients = ingredients.map(
+			(ingredient) =>
+				`${ingredient.amount} ${ingredient.unit} ${ingredient.name}`
+		);
+
+		try {
+			const response = await axios.post(
+				`https://api.edamam.com/api/nutrition-details?app_id=3a316c03&app_key=
+86cfb6331dcbb192bc68ad105fb5c11a`,
+				{
+					ingr: formattedIngredients,
+				}
+			);
+
+			// Transform the data to match your NutritionalData structure
+			const transformedData = {
+				calories: response.data.calories,
+				totalNutrients: {
+					FAT: response.data.totalNutrients.FAT,
+					PROCNT: response.data.totalNutrients.PROCNT,
+					CHOLE: response.data.totalNutrients.CHOLE,
+					NA: response.data.totalNutrients.NA,
+				},
+			};
+
+			return transformedData;
+		} catch (error) {
+			console.error('Error fetching nutrition data', error);
+		}
+	};
+
 	const handleSubmit = async (values, { setSubmitting, resetForm }) => {
 		try {
 			setSubmitting(true);
@@ -83,7 +116,12 @@ export default function addRecipe({ onSubmit }) {
 
 			const imageUrl = cloudinaryResponse.data.secure_url;
 
-			// Submit form data to backend, including the Cloudinary image URL
+			// Send ingredients to Edamam
+			const nutritionalData = await sendIngredientsToEdamam(
+				values.ingredients
+			);
+
+			// Submit form data to backend, including the Cloudinary image URL and nutritional data
 			const recipeData = {
 				recipeName: values.recipeName,
 				yield: values.yield,
@@ -94,6 +132,7 @@ export default function addRecipe({ onSubmit }) {
 				ingredients: values.ingredients,
 				instructions: values.instructions,
 				recipePhotoUrl: imageUrl,
+				nutritionalData: nutritionalData,
 			};
 			await axios.post('http://localhost:8080/api/recipes', recipeData);
 
