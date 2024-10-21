@@ -87,6 +87,7 @@ export default function addRecipe({ onSubmit }) {
 					NA: response.data.totalNutrients.NA,
 				},
 			};
+			console.log(transformedData);
 
 			return transformedData;
 		} catch (error) {
