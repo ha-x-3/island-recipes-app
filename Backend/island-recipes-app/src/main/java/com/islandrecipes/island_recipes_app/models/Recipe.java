@@ -23,6 +23,7 @@ public class Recipe {
     private List<Ingredient> ingredients;
     private String instructions;
     private String recipePhotoUrl;
+    private NutritionalData nutritionalData;
 
     @Setter
     @Getter
