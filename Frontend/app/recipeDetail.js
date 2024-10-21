@@ -56,6 +56,48 @@ export default function RecipeDetail() {
 			/>
 			<Text style={styles.subTitle}>Instructions:</Text>
 			<Text style={styles.instructions}>{recipe.instructions}</Text>
+
+			{/* Nutritional Facts */}
+			<Text>Nutritional Information:</Text>
+			{recipe.nutritionalData && (
+				<>
+					<Text>
+						Calories: {recipe.nutritionalData.calories || 'N/A'}
+					</Text>
+					{recipe.nutritionalData.totalNutrients && (
+						<>
+							<Text>
+								Fat:{' '}
+								{recipe.nutritionalData.totalNutrients.FAT
+									?.quantity || 'N/A'}{' '}
+								{recipe.nutritionalData.totalNutrients.FAT
+									?.unit || ''}
+							</Text>
+							<Text>
+								Protein:{' '}
+								{recipe.nutritionalData.totalNutrients.PROCNT
+									?.quantity || 'N/A'}{' '}
+								{recipe.nutritionalData.totalNutrients.PROCNT
+									?.unit || ''}
+							</Text>
+							<Text>
+								Cholesterol:{' '}
+								{recipe.nutritionalData.totalNutrients.CHOLE
+									?.quantity || 'N/A'}{' '}
+								{recipe.nutritionalData.totalNutrients.CHOLE
+									?.unit || ''}
+							</Text>
+							<Text>
+								Sodium:{' '}
+								{recipe.nutritionalData.totalNutrients.NA
+									?.quantity || 'N/A'}{' '}
+								{recipe.nutritionalData.totalNutrients.NA
+									?.unit || ''}
+							</Text>
+						</>
+					)}
+				</>
+			)}
 		</View>
 	);
 }
