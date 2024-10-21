@@ -87,9 +87,9 @@ export default function addRecipe({ onSubmit }) {
 					NA: response.data.totalNutrients.NA,
 				},
 			};
-			console.log(transformedData);
 
 			return transformedData;
+			
 		} catch (error) {
 			console.error('Error fetching nutrition data', error);
 		}
