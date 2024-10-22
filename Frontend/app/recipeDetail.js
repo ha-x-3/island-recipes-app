@@ -102,6 +102,11 @@ export default function RecipeDetail() {
 		</View>
 	);
 
+    //Helper function to round nutritional info decimals
+    const roundToTwoDecimalPlaces = (number) => {
+		return Number.isNaN(number) ? 'N/A' : Number(number).toFixed(2);
+	};
+
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<View style={styles.container}>
@@ -124,7 +129,7 @@ export default function RecipeDetail() {
 					renderItem={renderIngredient}
 					keyExtractor={(item) => item.name}
 					numColumns={2}
-                    columnWrapperStyle={styles.columnWrapper}
+					columnWrapperStyle={styles.columnWrapper}
 				/>
 				<Text style={styles.subTitle}>Instructions:</Text>
 				<Text style={styles.instructions}>{recipe.instructions}</Text>
@@ -136,23 +141,38 @@ export default function RecipeDetail() {
 						<Text style={styles.details}>
 							Calories: {recipe.nutritionalData.calories || 'N/A'}
 						</Text>
-						<Text style={styles.details}>
-							Fat: {recipe.nutritionalData.fat || 'N/A'} g
-						</Text>
-						<Text style={styles.details}>
-							Carbs:{' '}
-							{recipe.nutritionalData.carbohydrates || 'N/A'} g
-						</Text>
-						<Text style={styles.details}>
-							Protein: {recipe.nutritionalData.protein || 'N/A'} g
-						</Text>
-						<Text style={styles.details}>
-							Cholesterol:{' '}
-							{recipe.nutritionalData.cholesterol || 'N/A'} mg
-						</Text>
-						<Text style={styles.details}>
-							Sodium: {recipe.nutritionalData.sodium || 'N/A'} mg
-						</Text>
+						{recipe.nutritionalData.totalNutrients && (
+							<>
+								<Text style={styles.details}>
+									Fat:{' '}
+									{roundToTwoDecimalPlaces(recipe.nutritionalData.totalNutrients.FAT
+										?.quantity) || '0'}{' '}
+									{recipe.nutritionalData.totalNutrients.FAT
+										?.unit || ''}
+								</Text>
+								<Text style={styles.details}>
+									Protein:{' '}
+									{roundToTwoDecimalPlaces(recipe.nutritionalData.totalNutrients
+										.PROCNT?.quantity) || '0'}{' '}
+									{recipe.nutritionalData.totalNutrients
+										.PROCNT?.unit || ''}
+								</Text>
+								<Text style={styles.details}>
+									Cholesterol:{' '}
+									{roundToTwoDecimalPlaces(recipe.nutritionalData.totalNutrients
+										.CHOLE?.quantity) || '0'}{' '}
+									{recipe.nutritionalData.totalNutrients
+										.CHOLE?.unit || ''}
+								</Text>
+								<Text style={styles.details}>
+									Sodium:{' '}
+									{roundToTwoDecimalPlaces(recipe.nutritionalData.totalNutrients
+										.NA?.quantity) || '0'}{' '}
+									{recipe.nutritionalData.totalNutrients
+										.NA?.unit || ''}
+								</Text>
+							</>
+						)}
 					</>
 				)}
 
