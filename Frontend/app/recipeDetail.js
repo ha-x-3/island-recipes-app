@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
 	},
 	ingredientContainer: {
 		flex: 1,
-		paddingVertical: 10,
+		paddingTop: 10,
 	},
 	columnWrapper: {
 		justifyContent: 'space-between',
