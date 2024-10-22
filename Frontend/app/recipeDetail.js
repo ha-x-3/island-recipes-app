@@ -95,9 +95,11 @@ export default function RecipeDetail() {
 	}
 
 	const renderIngredient = ({ item }) => (
-		<Text>
-			{item.name} - {item.amount} {item.unit}
-		</Text>
+		<View style={styles.ingredientContainer}>
+			<Text style={styles.details}>
+				{item.name} - {item.amount} {item.unit}
+			</Text>
+		</View>
 	);
 
 	return (
@@ -121,32 +123,34 @@ export default function RecipeDetail() {
 					data={recipe.ingredients}
 					renderItem={renderIngredient}
 					keyExtractor={(item) => item.name}
+					numColumns={2}
+                    columnWrapperStyle={styles.columnWrapper}
 				/>
 				<Text style={styles.subTitle}>Instructions:</Text>
 				<Text style={styles.instructions}>{recipe.instructions}</Text>
 
 				{/* Nutritional Facts */}
-				<Text>Nutritional Information:</Text>
+				<Text style={styles.subTitle}>Nutritional Information:</Text>
 				{recipe.nutritionalData && (
 					<>
-						<Text>
+						<Text style={styles.details}>
 							Calories: {recipe.nutritionalData.calories || 'N/A'}
 						</Text>
-						<Text>
+						<Text style={styles.details}>
 							Fat: {recipe.nutritionalData.fat || 'N/A'} g
 						</Text>
-						<Text>
+						<Text style={styles.details}>
 							Carbs:{' '}
 							{recipe.nutritionalData.carbohydrates || 'N/A'} g
 						</Text>
-						<Text>
+						<Text style={styles.details}>
 							Protein: {recipe.nutritionalData.protein || 'N/A'} g
 						</Text>
-						<Text>
+						<Text style={styles.details}>
 							Cholesterol:{' '}
 							{recipe.nutritionalData.cholesterol || 'N/A'} mg
 						</Text>
-						<Text>
+						<Text style={styles.details}>
 							Sodium: {recipe.nutritionalData.sodium || 'N/A'} mg
 						</Text>
 					</>
@@ -278,5 +282,12 @@ const styles = StyleSheet.create({
 		left: '50%',
 		transform: [{ translateX: -50 }],
 		zIndex: 20, // Make sure it's above the overlay
+	},
+	ingredientContainer: {
+		flex: 1,
+		paddingVertical: 10,
+	},
+	columnWrapper: {
+		justifyContent: 'space-between',
 	},
 });
