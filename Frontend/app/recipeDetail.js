@@ -97,7 +97,7 @@ export default function RecipeDetail() {
 	const renderIngredient = ({ item }) => (
 		<View style={styles.ingredientContainer}>
 			<Text style={styles.details}>
-				{item.name} - {item.amount} {item.unit}
+				{item.amount} {item.unit} - {item.name}
 			</Text>
 		</View>
 	);
