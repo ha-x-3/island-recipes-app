@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
 	},
 	logo: {
 		height: '100%',
-		width: 100,
+		width: 140,
 	},
 	iconContainer: {
 		padding: 10,
