@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
-import { View, Image, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
-import { useRouter, useSegments } from 'expo-router';
+import {
+	View,
+	Image,
+	Text,
+	Pressable,
+	StyleSheet,
+	Dimensions,
+} from 'react-native';
+import { useRouter, useSegments, Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
 
@@ -8,7 +15,7 @@ const Header = () => {
 	const router = useRouter();
 	const segments = useSegments();
 	const [menuVisible, setMenuVisible] = useState(false);
-    const logo = require('../assets/islandRecipes.png');
+	const logo = require('../assets/islandRecipes.png');
 
 	const toggleMenu = () => {
 		setMenuVisible((prev) => !prev);
@@ -34,7 +41,19 @@ const Header = () => {
 					</Pressable>
 
 					{/* Title */}
-					<Image source={logo} style={styles.logo}></Image>
+					<Link
+						href='/'
+						asChild
+					>
+						<Pressable style={styles.logoContainer}>
+							<View>
+								<Image
+									source={logo}
+									style={styles.logo}
+								></Image>
+							</View>
+						</Pressable>
+					</Link>
 
 					{/* Hamburger Menu */}
 					<Pressable
@@ -103,6 +122,12 @@ const styles = StyleSheet.create({
 		borderBottomWidth: 1,
 		borderBottomColor: '#e0e0e0',
 	},
+    logoContainer: {
+        height: 50,
+        width: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 	logo: {
 		height: '100%',
 		width: 140,
@@ -137,19 +162,19 @@ const styles = StyleSheet.create({
 		shadowRadius: 3.84,
 		elevation: 5,
 	},
-    menuClose: {
-        textAlign: 'right',
-        fontSize: 18,
-        fontWeight: 'bold',
-        paddingBottom: 10,
-        paddingRight: 10,
-    },
+	menuClose: {
+		textAlign: 'right',
+		fontSize: 18,
+		fontWeight: 'bold',
+		paddingBottom: 10,
+		paddingRight: 10,
+	},
 	menuItem: {
 		paddingVertical: 15,
 		fontSize: 18,
 		borderBottomWidth: 1,
 		borderBottomColor: '#e0e0e0',
-        textAlign: 'center',
+		textAlign: 'center',
 	},
 });
 
