@@ -120,12 +120,12 @@ const styles = StyleSheet.create({
 		alignItems: 'flex-end',
 	},
 	menu: {
-		width: width * 0.7,
-		height: height,
+		width: width * 0.2,
+		height: height * 0.25,
 		backgroundColor: 'white',
 		borderTopLeftRadius: 20,
 		borderBottomLeftRadius: 20,
-		paddingTop: 50,
+		paddingTop: 30,
 		paddingHorizontal: 20,
 		shadowColor: '#000',
 		shadowOffset: {
@@ -140,12 +140,15 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         fontSize: 18,
         fontWeight: 'bold',
+        paddingBottom: 10,
+        paddingRight: 10,
     },
 	menuItem: {
 		paddingVertical: 15,
 		fontSize: 18,
 		borderBottomWidth: 1,
 		borderBottomColor: '#e0e0e0',
+        textAlign: 'center',
 	},
 });
 
