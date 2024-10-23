@@ -51,7 +51,10 @@ const Header = ({ title }) => {
 			{menuVisible && (
 				<View style={styles.menuOverlay}>
 					<View style={styles.menu}>
-						<Pressable
+						<Pressable onPress={toggleMenu}>
+							<Text style={styles.menuClose}>X</Text>
+						</Pressable>
+                        <Pressable
 							onPress={() => {
 								router.push('/addRecipe');
 								toggleMenu();
@@ -75,9 +78,7 @@ const Header = ({ title }) => {
 						>
 							<Text style={styles.menuItem}>Search</Text>
 						</Pressable>
-						<Pressable onPress={toggleMenu}>
-							<Text style={styles.menuItem}>Close Menu</Text>
-						</Pressable>
+						
 					</View>
 				</View>
 			)}
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		paddingHorizontal: 16,
-		paddingVertical: 8,
+		paddingBottom: 8,
 		backgroundColor: '#fff',
 		borderBottomWidth: 1,
 		borderBottomColor: '#e0e0e0',
@@ -135,6 +136,11 @@ const styles = StyleSheet.create({
 		shadowRadius: 3.84,
 		elevation: 5,
 	},
+    menuClose: {
+        textAlign: 'right',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
 	menuItem: {
 		paddingVertical: 15,
 		fontSize: 18,
