@@ -18,9 +18,10 @@ const Header = ({ title }) => {
 
 	return (
 		<View style={styles.container}>
-			<SafeAreaView style={styles.headerContainer}>
-				{/* Back Button */}
-				{!isHome && (
+			{!isHome && (
+				<SafeAreaView style={styles.headerContainer}>
+					{/* Back Button */}
+
 					<Pressable
 						onPress={() => router.back()}
 						style={styles.iconContainer}
@@ -30,22 +31,22 @@ const Header = ({ title }) => {
 							type='material'
 						/>
 					</Pressable>
-				)}
 
-				{/* Title */}
-				<Text style={styles.title}>{title}</Text>
+					{/* Title */}
+					<Text style={styles.title}>{title}</Text>
 
-				{/* Hamburger Menu */}
-				<Pressable
-					onPress={toggleMenu}
-					style={styles.iconContainer}
-				>
-					<Icon
-						name='menu'
-						type='material'
-					/>
-				</Pressable>
-			</SafeAreaView>
+					{/* Hamburger Menu */}
+					<Pressable
+						onPress={toggleMenu}
+						style={styles.iconContainer}
+					>
+						<Icon
+							name='menu'
+							type='material'
+						/>
+					</Pressable>
+				</SafeAreaView>
+			)}
 
 			{/* Menu Drawer */}
 			{menuVisible && (
@@ -54,7 +55,7 @@ const Header = ({ title }) => {
 						<Pressable onPress={toggleMenu}>
 							<Text style={styles.menuClose}>X</Text>
 						</Pressable>
-                        <Pressable
+						<Pressable
 							onPress={() => {
 								router.push('/addRecipe');
 								toggleMenu();
@@ -78,7 +79,6 @@ const Header = ({ title }) => {
 						>
 							<Text style={styles.menuItem}>Search</Text>
 						</Pressable>
-						
 					</View>
 				</View>
 			)}
