@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
+import { View, Image, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
 
-const Header = ({ title }) => {
+const Header = () => {
 	const router = useRouter();
 	const segments = useSegments();
 	const [menuVisible, setMenuVisible] = useState(false);
+    const logo = require('../assets/islandRecipes.png');
 
 	const toggleMenu = () => {
 		setMenuVisible((prev) => !prev);
@@ -33,7 +34,7 @@ const Header = ({ title }) => {
 					</Pressable>
 
 					{/* Title */}
-					<Text style={styles.title}>{title}</Text>
+					<Image source={logo} style={styles.logo}></Image>
 
 					{/* Hamburger Menu */}
 					<Pressable
@@ -102,9 +103,9 @@ const styles = StyleSheet.create({
 		borderBottomWidth: 1,
 		borderBottomColor: '#e0e0e0',
 	},
-	title: {
-		fontSize: 20,
-		fontWeight: 'bold',
+	logo: {
+		height: '100%',
+		width: 100,
 	},
 	iconContainer: {
 		padding: 10,
