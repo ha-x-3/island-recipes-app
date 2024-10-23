@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { SplashScreen, Slot } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from './header.js';
@@ -28,7 +29,8 @@ export default function Layout() {
 
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
-		    <Header title='Island Recipes' />
+		    <StatusBar style='dark' />
+			<Header title='Island Recipes' />
 			<Slot />
 		</SafeAreaView>
 	);
