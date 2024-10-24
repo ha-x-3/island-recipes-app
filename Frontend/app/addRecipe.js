@@ -7,7 +7,7 @@ import {
 	Pressable,
 	Alert,
 	ScrollView,
-	Image
+	Image,
 } from 'react-native';
 import NumericInput from 'react-native-numeric-input-pure-js';
 import { Formik, FieldArray } from 'formik';
@@ -89,7 +89,6 @@ export default function addRecipe({ onSubmit }) {
 			};
 
 			return transformedData;
-			
 		} catch (error) {
 			console.error('Error fetching nutrition data', error);
 		}
@@ -219,69 +218,95 @@ export default function addRecipe({ onSubmit }) {
 								</Text>
 							)}
 
-							{/* Prep Time */}
-							<Text style={styles.inputLabel}>Prep Time</Text>
-							<View style={styles.prepTime}>
-								<TextInput
-									style={styles.inputTime}
-									onChangeText={handleChange('prepTimeHour')}
-									value={String(values.prepTimeHour)}
-									placeholder='Hours'
-									keyboardType='numeric'
-									placeholderTextColor='gray'
-								/>
-								<Text style={styles.displayDecimal}>:</Text>
-								<TextInput
-									style={styles.inputTime}
-									onChangeText={handleChange('prepTimeMin')}
-									value={String(values.prepTimeMin)}
-									placeholder='Minutes'
-									keyboardType='numeric'
-									placeholderTextColor='gray'
-								/>
-							</View>
-							{touched.prepTimeHour && errors.prepTimeHour && (
-								<Text style={styles.errorText}>
-									{errors.prepTimeHour}
-								</Text>
-							)}
-							{touched.prepTimeMin && errors.prepTimeMin && (
-								<Text style={styles.errorText}>
-									{errors.prepTimeMin}
-								</Text>
-							)}
+							<View style={styles.timeSection}>
+								{/* Prep Time */}
+								<View style={styles.smallTimeSection}>
+									<Text style={styles.inputLabel}>
+										Prep Time
+									</Text>
+									<View style={styles.prepTime}>
+										<TextInput
+											style={styles.inputTime}
+											onChangeText={handleChange(
+												'prepTimeHour'
+											)}
+											value={String(values.prepTimeHour)}
+											placeholder='Hours'
+											keyboardType='numeric'
+											placeholderTextColor='gray'
+										/>
+										<Text style={styles.displayDecimal}>
+											:
+										</Text>
+										<TextInput
+											style={styles.inputTime}
+											onChangeText={handleChange(
+												'prepTimeMin'
+											)}
+											value={String(values.prepTimeMin)}
+											placeholder='Minutes'
+											keyboardType='numeric'
+											placeholderTextColor='gray'
+										/>
+									</View>
+									{touched.prepTimeHour &&
+										errors.prepTimeHour && (
+											<Text style={styles.errorText}>
+												{errors.prepTimeHour}
+											</Text>
+										)}
+									{touched.prepTimeMin &&
+										errors.prepTimeMin && (
+											<Text style={styles.errorText}>
+												{errors.prepTimeMin}
+											</Text>
+										)}
+								</View>
 
-							{/* Cook Time */}
-							<Text style={styles.inputLabel}>Cook Time</Text>
-							<View style={styles.prepTime}>
-								<TextInput
-									style={styles.inputTime}
-									onChangeText={handleChange('cookTimeHour')}
-									value={String(values.cookTimeHour)}
-									placeholder='Hours'
-									keyboardType='numeric'
-									placeholderTextColor='gray'
-								/>
-								<Text style={styles.displayDecimal}>:</Text>
-								<TextInput
-									style={styles.inputTime}
-									onChangeText={handleChange('cookTimeMin')}
-									value={String(values.cookTimeMin)}
-									placeholder='Minutes'
-									keyboardType='numeric'
-									placeholderTextColor='gray'
-								/>
+								{/* Cook Time */}
+								<View style={styles.smallTimeSection}>
+									<Text style={styles.inputLabel}>
+										Cook Time
+									</Text>
+									<View style={styles.prepTime}>
+										<TextInput
+											style={styles.inputTime}
+											onChangeText={handleChange(
+												'cookTimeHour'
+											)}
+											value={String(values.cookTimeHour)}
+											placeholder='Hours'
+											keyboardType='numeric'
+											placeholderTextColor='gray'
+										/>
+										<Text style={styles.displayDecimal}>
+											:
+										</Text>
+										<TextInput
+											style={styles.inputTime}
+											onChangeText={handleChange(
+												'cookTimeMin'
+											)}
+											value={String(values.cookTimeMin)}
+											placeholder='Minutes'
+											keyboardType='numeric'
+											placeholderTextColor='gray'
+										/>
+									</View>
+									{touched.cookTimeHour &&
+										errors.cookTimeHour && (
+											<Text style={styles.errorText}>
+												{errors.cookTimeHour}
+											</Text>
+										)}
+									{touched.cookTimeMin &&
+										errors.cookTimeMin && (
+											<Text style={styles.errorText}>
+												{errors.cookTimeMin}
+											</Text>
+										)}
+								</View>
 							</View>
-							{touched.cookTimeHour && errors.cookTimeHour && (
-								<Text style={styles.errorText}>
-									{errors.cookTimeHour}
-								</Text>
-							)}
-							{touched.cookTimeMin && errors.cookTimeMin && (
-								<Text style={styles.errorText}>
-									{errors.cookTimeMin}
-								</Text>
-							)}
 
 							{/* Ingredients */}
 							<Text style={styles.inputLabel}>Ingredients</Text>
@@ -535,6 +560,15 @@ const styles = StyleSheet.create({
 		marginBottom: 12,
 		backgroundColor: '#F2F2F2',
 		color: '#2B2B2B',
+	},
+	timeSection: {
+		display: 'flex',
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+	},
+	smallTimeSection: {
+		display: 'flex',
+		flexDirection: 'column',
 	},
 	prepTime: {
 		flexDirection: 'row',
