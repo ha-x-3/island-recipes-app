@@ -7,6 +7,8 @@ import {
 	FlatList,
 	Button,
 	Dimensions,
+	Alert,
+	TouchableOpacity
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
@@ -15,6 +17,7 @@ import {
 	GestureHandlerRootView,
 	PanGestureHandler,
 } from 'react-native-gesture-handler';
+import { useShoppingList } from '../components/ShoppingListProvider';
 
 export default function RecipeDetail() {
 	const { id } = useLocalSearchParams();
@@ -25,6 +28,7 @@ export default function RecipeDetail() {
 	const [isEraseMode, setIsEraseMode] = useState(false); // Erase mode toggle
 	const screenWidth = Dimensions.get('window').width;
 	const screenHeight = Dimensions.get('window').height;
+	const { addItem } = useShoppingList();
 
 	// Fetch recipe details
 	useEffect(() => {
@@ -94,12 +98,30 @@ export default function RecipeDetail() {
 		return <Text>Loading...</Text>;
 	}
 
+	// Shopping List helper functions
+	const addIngredientToShoppingList = (ingredient) => {
+		Alert.alert(
+			'Add to Shopping List',
+			`Do you want to add ${ingredient.name} to the shopping list?`,
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{
+					text: 'Add',
+					onPress: () => addItem(ingredient),
+				},
+			]
+		);
+	};
+
 	const renderIngredient = ({ item }) => (
-		<View style={styles.ingredientContainer}>
+		<TouchableOpacity
+			style={styles.ingredientContainer}
+			onPress={() => addIngredientToShoppingList(item)}
+		>
 			<Text style={styles.details}>
 				{item.amount} {item.unit} - {item.name}
 			</Text>
-		</View>
+		</TouchableOpacity>
 	);
 
     //Helper function to round nutritional info decimals
