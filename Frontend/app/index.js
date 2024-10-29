@@ -12,8 +12,10 @@ import { faBookOpen } from '@fortawesome/free-solid-svg-icons/faBookOpen';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
 import { faListCheck } from '@fortawesome/free-solid-svg-icons/faListCheck';
+import { useShoppingList } from '../components/ShoppingListProvider';
 
 export default function Home() {
+	const { shoppingList } = useShoppingList();
 	const hero = require('../assets/islandRecipes.png');
 
 	return (
@@ -68,15 +70,22 @@ export default function Home() {
 					</Pressable>
 				</Link>
 
-				<Pressable style={styles.button}>
-					<View style={styles.buttonContent}>
-						<Text style={styles.buttonText}>Shopping List</Text>
-						<FontAwesomeIcon
-							icon={faListCheck}
-							size={32}
-						/>
-					</View>
-				</Pressable>
+				<Link
+					href='/shoppingList'
+					asChild
+				>
+					<Pressable style={styles.button}>
+						<View style={styles.buttonContent}>
+							<Text style={styles.buttonText}>
+								Shopping List ({shoppingList.length})
+							</Text>
+							<FontAwesomeIcon
+								icon={faListCheck}
+								size={32}
+							/>
+						</View>
+					</Pressable>
+				</Link>
 			</View>
 		</View>
 	);
