@@ -4,11 +4,11 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from './header.js';
+import { ShoppingListProvider } from '../components/ShoppingListProvider.js';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function Layout() {
-
 	const [fontsLoaded, fontError] = useFonts({
 		OpenSans: require('../assets/fonts/OpenSans-Regular.ttf'),
 		'OpenSans-Italic': require('../assets/fonts/OpenSans-Italic.ttf'),
@@ -28,10 +28,12 @@ export default function Layout() {
 	}
 
 	return (
-		<SafeAreaView style={{ flex: 1 }}>
-		    <StatusBar style='dark' />
-			<Header title='Island Recipes' />
-			<Slot />
-		</SafeAreaView>
+		<ShoppingListProvider>
+			<SafeAreaView style={{ flex: 1 }}>
+				<StatusBar style='dark' />
+				<Header title='Island Recipes' />
+				<Slot />
+			</SafeAreaView>
+		</ShoppingListProvider>
 	);
 }
