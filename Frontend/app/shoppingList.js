@@ -29,11 +29,13 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		padding: 16,
+		backgroundColor: 'rgba(2, 169, 157, 1.0)',
 	},
 	title: {
 		fontSize: 24,
 		fontWeight: 'bold',
 		marginBottom: 8,
+        textAlign: 'center',
 	},
 	listItem: {
 		padding: 10,
