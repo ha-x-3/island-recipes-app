@@ -13,14 +13,18 @@
       "backgroundColor": "#02A99D"
     },
     "ios": {
-      "supportsTablet": true
-    },
+		"supportsTablet": true,
+		"infoPlist": {
+			"NSPhotoLibraryAddUsageDescription": "This app requires access to your photo library to save PDFs."
+		}
+	},
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#02A99D"
-      }
-    },
+		"adaptiveIcon": {
+			"foregroundImage": "./assets/icon.png",
+			"backgroundColor": "#02A99D"
+		},
+		"permissions": ["WRITE_EXTERNAL_STORAGE", "READ_EXTERNAL_STORAGE"]
+	},
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
