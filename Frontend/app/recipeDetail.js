@@ -18,6 +18,9 @@ import {
 	PanGestureHandler,
 } from 'react-native-gesture-handler';
 import { useShoppingList } from '../components/ShoppingListProvider';
+import RecipeDetailPDF from '../components/RecipeDetailPDF';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 
 export default function RecipeDetail() {
 	const { id } = useLocalSearchParams();
@@ -94,6 +97,22 @@ export default function RecipeDetail() {
 		return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 	};
 
+	// Function to generate PDF
+	const generatePDF = async () => {
+		try {
+			const pdf = await RecipeDetailPDF.generate(recipe);
+			await Sharing.shareAsync(pdf.filePath, {
+				mimeType: 'application/pdf',
+				dialogTitle: `Share Recipe: ${recipe.recipeName}`,
+				UTI: 'com.adobe.pdf',
+			});
+		} catch (error) {
+			console.error('Error generating PDF:', error);
+			Alert.alert('Error', 'Failed to generate PDF. Please try again.');
+		}
+	};
+
+
 	if (!recipe) {
 		return <Text>Loading...</Text>;
 	}
@@ -167,31 +186,39 @@ export default function RecipeDetail() {
 							<>
 								<Text style={styles.details}>
 									Fat:{' '}
-									{roundToTwoDecimalPlaces(recipe.nutritionalData.totalNutrients.FAT
-										?.quantity) || '0'}{' '}
+									{roundToTwoDecimalPlaces(
+										recipe.nutritionalData.totalNutrients
+											.FAT?.quantity
+									) || '0'}{' '}
 									{recipe.nutritionalData.totalNutrients.FAT
 										?.unit || ''}
 								</Text>
 								<Text style={styles.details}>
 									Protein:{' '}
-									{roundToTwoDecimalPlaces(recipe.nutritionalData.totalNutrients
-										.PROCNT?.quantity) || '0'}{' '}
+									{roundToTwoDecimalPlaces(
+										recipe.nutritionalData.totalNutrients
+											.PROCNT?.quantity
+									) || '0'}{' '}
 									{recipe.nutritionalData.totalNutrients
 										.PROCNT?.unit || ''}
 								</Text>
 								<Text style={styles.details}>
 									Cholesterol:{' '}
-									{roundToTwoDecimalPlaces(recipe.nutritionalData.totalNutrients
-										.CHOLE?.quantity) || '0'}{' '}
-									{recipe.nutritionalData.totalNutrients
-										.CHOLE?.unit || ''}
+									{roundToTwoDecimalPlaces(
+										recipe.nutritionalData.totalNutrients
+											.CHOLE?.quantity
+									) || '0'}{' '}
+									{recipe.nutritionalData.totalNutrients.CHOLE
+										?.unit || ''}
 								</Text>
 								<Text style={styles.details}>
 									Sodium:{' '}
-									{roundToTwoDecimalPlaces(recipe.nutritionalData.totalNutrients
-										.NA?.quantity) || '0'}{' '}
-									{recipe.nutritionalData.totalNutrients
-										.NA?.unit || ''}
+									{roundToTwoDecimalPlaces(
+										recipe.nutritionalData.totalNutrients.NA
+											?.quantity
+									) || '0'}{' '}
+									{recipe.nutritionalData.totalNutrients.NA
+										?.unit || ''}
 								</Text>
 							</>
 						)}
@@ -270,6 +297,29 @@ export default function RecipeDetail() {
 						</View>
 					</>
 				)}
+
+				{/* Generate PDF Button */}
+				<TouchableOpacity
+					style={styles.pdfButton}
+					onPress={() => {
+						Alert.alert(
+							'Generate PDF',
+							'Do you want to generate a PDF of this recipe?',
+							[
+								{
+									text: 'Cancel',
+									style: 'cancel',
+								},
+								{
+									text: 'Yes',
+									onPress: generatePDF,
+								},
+							]
+						);
+					}}
+				>
+					<Text style={styles.pdfButtonText}>Generate PDF</Text>
+				</TouchableOpacity>
 			</View>
 		</GestureHandlerRootView>
 	);
@@ -331,5 +381,17 @@ const styles = StyleSheet.create({
 	},
 	columnWrapper: {
 		justifyContent: 'space-between',
+	},
+	pdfButton: {
+		backgroundColor: '#007AFF',
+		padding: 12,
+		borderRadius: 8,
+		marginTop: 16,
+		alignItems: 'center',
+	},
+	pdfButtonText: {
+		color: 'white',
+		fontSize: 16,
+		fontWeight: '600',
 	},
 });
