@@ -1,15 +1,21 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useShoppingList } from '../components/ShoppingListProvider'; 
 
 export default function ShoppingList() {
-	const { shoppingList } = useShoppingList();
+	const { shoppingList, removeItem } = useShoppingList();
 
 	const renderShoppingListItem = ({ item }) => (
 		<View style={styles.listItem}>
 			<Text style={styles.itemText}>
 				{item.amount} {item.unit} - {item.name}
 			</Text>
+			<TouchableOpacity
+				style={styles.deleteButton}
+				onPress={() => removeItem(item.name)}
+			>
+				<Text style={styles.deleteButtonText}>Delete</Text>
+			</TouchableOpacity>
 		</View>
 	);
 
@@ -34,14 +40,26 @@ const styles = StyleSheet.create({
 		fontSize: 24,
 		fontWeight: 'bold',
 		marginBottom: 8,
-        textAlign: 'center',
+		textAlign: 'center',
 	},
 	listItem: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 		padding: 10,
 		borderBottomWidth: 1,
 		borderBottomColor: '#ccc',
 	},
 	itemText: {
 		fontSize: 16,
+	},
+	deleteButton: {
+		backgroundColor: 'red',
+		padding: 5,
+		borderRadius: 5,
+	},
+	deleteButtonText: {
+		color: 'white',
+		fontSize: 14,
 	},
 });
