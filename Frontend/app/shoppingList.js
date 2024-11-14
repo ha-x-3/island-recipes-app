@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: 24,
 		fontWeight: 'bold',
-		marginBottom: 8,
+		marginVertical: 15,
 		textAlign: 'center',
 	},
 	listItem: {
