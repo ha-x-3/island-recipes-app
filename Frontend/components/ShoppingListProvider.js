@@ -43,9 +43,17 @@ export const ShoppingListProvider = ({ children }) => {
 		saveShoppingList(updatedList);
 	};
 
+	const updateItem = (oldName, updatedItem) => {
+		const updatedList = shoppingList.map((item) =>
+			item.name === oldName ? updatedItem : item
+		);
+		setShoppingList(updatedList);
+		saveShoppingList(updatedList);
+	};
+
 	return (
 		<ShoppingListContext.Provider
-			value={{ shoppingList, addItem, removeItem }}
+			value={{ shoppingList, addItem, removeItem, updateItem }}
 		>
 			{children}
 		</ShoppingListContext.Provider>
