@@ -17,6 +17,7 @@ const RecipeDetailPDF = {
                             body { font-family: Helvetica; padding: 20px; }
                             h1 { color: #333333; font-size: 24px; }
                             h2 { color: #666666; font-size: 18px; margin-top: 20px; }
+							img { height: 200px; width: '100%' }
                             p { font-size: 14px; line-height: 1.5; }
                             .ingredient { margin: 5px 0; }
                             .nutritional-info { margin-top: 20px; }
@@ -24,6 +25,7 @@ const RecipeDetailPDF = {
                     </head>
                     <body>
                         <h1>${recipe.recipeName}</h1>
+						<img src=${recipe.recipePhotoUrl} alt="Recipe Image"></img>
                         <p>Servings: ${recipe.yield}</p>
                         <p>Prep Time: ${recipe.prepTimeHour} hr ${
 				recipe.prepTimeMin
