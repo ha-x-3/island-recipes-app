@@ -19,13 +19,16 @@ const RecipeDetailPDF = {
                             h2 { color: #666666; font-size: 18px; margin-top: 20px; }
 							img { height: 200px; width: '100%' }
                             p { font-size: 14px; line-height: 1.5; }
+							.description-info { display: flex; flex-direction: column; align-items: center; justify-content: center }
                             .ingredient { margin: 5px 0; }
                             .nutritional-info { margin-top: 20px; }
                         </style>
                     </head>
                     <body>
-                        <h1>${recipe.recipeName}</h1>
-						<img src=${recipe.recipePhotoUrl} alt="Recipe Image"></img>
+						<div class="description-info">
+							<h1>${recipe.recipeName}</h1>
+							<img src=${recipe.recipePhotoUrl} alt="Recipe Image"></img>
+						</div>
                         <p>Servings: ${recipe.yield}</p>
                         <p>Prep Time: ${recipe.prepTimeHour} hr ${
 				recipe.prepTimeMin
