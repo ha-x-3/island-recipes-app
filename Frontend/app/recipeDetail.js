@@ -19,6 +19,7 @@ import {
 } from 'react-native-gesture-handler';
 import { useShoppingList } from '../components/ShoppingListProvider';
 import RecipeDetailPDF from '../components/RecipeDetailPDF';
+import { roundToTwoDecimalPlaces } from '../utils/utlityFunctions';
 
 export default function RecipeDetail() {
 	const { id } = useLocalSearchParams();
@@ -134,11 +135,6 @@ export default function RecipeDetail() {
 			</Text>
 		</TouchableOpacity>
 	);
-
-    //Helper function to round nutritional info decimals
-    const roundToTwoDecimalPlaces = (number) => {
-		return Number.isNaN(number) ? 'N/A' : Number(number).toFixed(2);
-	};
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>

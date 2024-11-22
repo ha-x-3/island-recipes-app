@@ -1,10 +1,6 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-
-// Utility function for rounding numbers
-const roundToTwoDecimalPlaces = (num) => {
-	return Math.round(num * 100) / 100;
-};
+import { roundToTwoDecimalPlaces } from '../utils/utlityFunctions';
 
 const RecipeDetailPDF = {
 	generate: async (recipe) => {
