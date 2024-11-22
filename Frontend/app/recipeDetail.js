@@ -19,7 +19,6 @@ import {
 } from 'react-native-gesture-handler';
 import { useShoppingList } from '../components/ShoppingListProvider';
 import RecipeDetailPDF from '../components/RecipeDetailPDF';
-import * as Sharing from 'expo-sharing';
 
 export default function RecipeDetail() {
 	const { id } = useLocalSearchParams();
