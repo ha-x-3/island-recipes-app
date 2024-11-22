@@ -99,18 +99,12 @@ export default function RecipeDetail() {
 	// Function to generate PDF
 	const generatePDF = async () => {
 		try {
-			const pdf = await RecipeDetailPDF.generate(recipe);
-			await Sharing.shareAsync(pdf.filePath, {
-				mimeType: 'application/pdf',
-				dialogTitle: `Share Recipe: ${recipe.recipeName}`,
-				UTI: 'com.adobe.pdf',
-			});
+			await RecipeDetailPDF.generate(recipe);
 		} catch (error) {
 			console.error('Error generating PDF:', error);
 			Alert.alert('Error', 'Failed to generate PDF. Please try again.');
 		}
 	};
-
 
 	if (!recipe) {
 		return <Text>Loading...</Text>;
