@@ -15,7 +15,7 @@ const RecipeDetailPDF = {
                             h2 { color: #666666; font-size: 18px; margin-top: 20px; }
 							img { height: 200px; width: '100%' }
                             p { font-size: 14px; line-height: 1.5; }
-							.description-info { display: flex; flex-direction: column; align-items: center; justify-content: center }
+							.description-info { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
                             .ingredient { margin: 5px 0; }
                             .nutritional-info { margin-top: 20px; }
                         </style>
