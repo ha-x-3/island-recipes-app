@@ -30,6 +30,22 @@ public class RecipeService {
         return recipeRepository.findById(id);
     }
 
+    public Optional<Recipe> updateRecipe(String id, Recipe recipe) {
+        if (!recipeRepository.existsById(id)) {
+            return Optional.empty();
+        }
+        recipe.setId(id);
+        return Optional.of(recipeRepository.save(recipe));
+    }
+
+    public boolean deleteRecipe(String id) {
+        if (!recipeRepository.existsById(id)) {
+            return false;
+        }
+        recipeRepository.deleteById(id);
+        return true;
+    }
+
     public List<Recipe> searchRecipes(String searchTerm) {
         return recipeRepository.searchRecipesByNameOrIngredient(searchTerm);
     }

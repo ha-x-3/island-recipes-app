@@ -2,6 +2,7 @@ package com.islandrecipes.island_recipes_app.controllers;
 
 import com.islandrecipes.island_recipes_app.models.Recipe;
 import com.islandrecipes.island_recipes_app.services.RecipeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class RecipeController {
     }
 
     @PostMapping
-    public ResponseEntity<Recipe> createRecipe(@RequestBody Recipe recipe) {
+    public ResponseEntity<Recipe> createRecipe(@Valid @RequestBody Recipe recipe) {
         Recipe savedRecipe = recipeService.saveRecipe(recipe);
         return new ResponseEntity<>(savedRecipe, HttpStatus.CREATED);
     }
@@ -38,6 +39,21 @@ public class RecipeController {
         Optional<Recipe> recipe = recipeService.getRecipeById(id);
         return recipe.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Recipe> updateRecipe(@PathVariable String id, @Valid @RequestBody Recipe recipe) {
+        return recipeService.updateRecipe(id, recipe)
+                .map(updated -> new ResponseEntity<>(updated, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRecipe(@PathVariable String id) {
+        if (recipeService.deleteRecipe(id)) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/search")

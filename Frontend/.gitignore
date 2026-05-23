@@ -1,0 +1,20 @@
+# Expo
+.expo/
+dist/
+web-build/
+
+# Environment variables - never commit these
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+*.log
+
+# Native builds
+android/
+ios/
