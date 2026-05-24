@@ -14,12 +14,8 @@ import NumericInput from 'react-native-numeric-input-pure-js';
 import { Formik, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
+import { Svg, Path, Circle } from 'react-native-svg';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
-import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
-import { faImage } from '@fortawesome/free-solid-svg-icons/faImage';
-import { faCameraRetro } from '@fortawesome/free-solid-svg-icons/faCameraRetro';
 import { Colors } from '../../constants/colors';
 import { TAG_GROUPS } from '../../constants/tags';
 import { parseRecipeFromImage } from '../../utils/geminiRecipeParser';
@@ -51,6 +47,14 @@ const validationSchema = Yup.object().shape({
 	instructions: Yup.string().required('Instructions are required'),
 	recipePhoto: Yup.string().required('Recipe photo is required'),
 });
+
+function FieldLabel({ children }) {
+	return <Text style={styles.fieldLabel}>{children}</Text>;
+}
+
+function FormCard({ children }) {
+	return <View style={styles.formCard}>{children}</View>;
+}
 
 export default function AddRecipe() {
 	const [imageUri, setImageUri] = useState(null);
@@ -183,9 +187,7 @@ export default function AddRecipe() {
 	};
 
 	const fetchNutrition = async (ingredients) => {
-		const formatted = ingredients.map(
-			(i) => `${i.amount} ${i.unit} ${i.name}`
-		);
+		const formatted = ingredients.map((i) => `${i.amount} ${i.unit} ${i.name}`);
 		try {
 			const response = await axios.post(
 				`https://api.edamam.com/api/nutrition-details?app_id=${EDAMAM_APP_ID}&app_key=${EDAMAM_APP_KEY}`,
@@ -210,7 +212,6 @@ export default function AddRecipe() {
 		try {
 			setSubmitting(true);
 
-			console.log('[submit] photo URI:', values.recipePhoto);
 			const formData = new FormData();
 			formData.append('file', {
 				uri: values.recipePhoto,
@@ -219,18 +220,15 @@ export default function AddRecipe() {
 			});
 			formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
-			console.log('[submit] uploading to Cloudinary...');
 			const cloudinaryResponse = await fetch(
 				`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
 				{ method: 'POST', body: formData }
 			);
 			const cloudinaryData = await cloudinaryResponse.json();
 			if (!cloudinaryData.secure_url) throw new Error('Cloudinary upload failed');
-			console.log('[submit] Cloudinary ok:', cloudinaryData.secure_url);
 
 			const imageUrl = cloudinaryData.secure_url;
 			const nutritionalData = await fetchNutrition(values.ingredients);
-			console.log('[submit] nutrition ok, posting to backend:', `${BASE_URL}/api/recipes`);
 
 			await axios.post(`${BASE_URL}/api/recipes`, {
 				recipeName: values.recipeName,
@@ -245,16 +243,13 @@ export default function AddRecipe() {
 				nutritionalData,
 				tags: values.tags,
 			});
-			console.log('[submit] backend ok');
 
-			Alert.alert('Success', 'Recipe submitted successfully!');
+			Alert.alert('Success', 'Recipe saved!');
 			setImageUri(null);
 			setCustomTagInput('');
 			resetForm();
 		} catch (error) {
-			console.error('[submit] failed at:', error.config?.url ?? 'unknown');
-			console.error('[submit] status:', error.response?.status);
-			console.error('[submit] message:', error.message);
+			console.error('[submit] failed:', error.message);
 			Alert.alert('Error', 'Could not submit recipe. Please try again.');
 		} finally {
 			setSubmitting(false);
@@ -263,7 +258,7 @@ export default function AddRecipe() {
 
 	return (
 		<ScrollView
-			style={styles.scrollView}
+			style={styles.scroll}
 			contentContainerStyle={styles.scrollContent}
 			keyboardShouldPersistTaps='handled'
 		>
@@ -294,62 +289,80 @@ export default function AddRecipe() {
 					touched,
 				}) => (
 					<View style={styles.form}>
+						{/* AI import banner */}
 						<Pressable
 							style={({ pressed }) => [
 								styles.importBanner,
-								(pressed || isScanning) && styles.importBannerPressed,
+								(pressed || isScanning) && { opacity: 0.75 },
 							]}
 							onPress={() => importFromPhoto(setValues, setFieldValue, values)}
 							disabled={isScanning}
 						>
-							{isScanning ? (
-								<ActivityIndicator color={Colors.white} size='small' />
-							) : (
-								<FontAwesomeIcon icon={faCameraRetro} size={18} color={Colors.white} />
-							)}
-							<Text style={styles.importBannerText}>
-								{isScanning ? 'Scanning recipe…' : 'Import from Photo'}
-							</Text>
+							<View style={styles.importIcon}>
+								{isScanning ? (
+									<ActivityIndicator color={Colors.blue700} size='small' />
+								) : (
+									<Svg width={22} height={22} viewBox='0 0 24 24' fill='none'
+										stroke={Colors.blue700} strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round'>
+										<Path d='M4 8a2 2 0 0 1 2-2h2.5l1.5-2h4l1.5 2H18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z' />
+										<Circle cx='12' cy='13' r='3.5' />
+									</Svg>
+								)}
+							</View>
+							<View style={{ flex: 1 }}>
+								<Text style={styles.importTitle}>
+									{isScanning ? 'Scanning recipe…' : 'Import from Photo'}
+								</Text>
+								<Text style={styles.importSub}>
+									Point at a printed or on-screen recipe
+								</Text>
+							</View>
+							<Svg width={18} height={18} viewBox='0 0 24 24' fill='none'
+								stroke={Colors.blue400} strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round'>
+								<Path d='m9 6 6 6-6 6' />
+							</Svg>
 						</Pressable>
 
-						<View style={styles.sectionCard}>
-							<Text style={styles.sectionLabel}>Recipe Name</Text>
+						{/* Name + yield */}
+						<FormCard>
+							<FieldLabel>Recipe Name</FieldLabel>
 							<TextInput
 								style={styles.input}
 								onChangeText={handleChange('recipeName')}
 								value={values.recipeName}
 								placeholder='e.g. Jerk Chicken'
-								placeholderTextColor={Colors.mutedText}
+								placeholderTextColor={Colors.ink400}
 							/>
 							{touched.recipeName && errors.recipeName && (
-								<Text style={styles.errorText}>{errors.recipeName}</Text>
+								<Text style={styles.err}>{errors.recipeName}</Text>
 							)}
 
-							<Text style={styles.sectionLabel}>Yield (servings)</Text>
+							<FieldLabel>Yield (servings)</FieldLabel>
 							<NumericInput
 								value={values.yield}
 								onChange={(value) => setFieldValue('yield', value)}
 								totalWidth={200}
-								totalHeight={44}
+								totalHeight={46}
 								iconSize={22}
 								step={1}
 								valueType='integer'
 								minValue={1}
 								rounded
-								textColor={Colors.darkText}
+								textColor={Colors.ink900}
 								iconStyle={{ color: Colors.white }}
-								rightButtonBackgroundColor={Colors.primary}
-								leftButtonBackgroundColor={Colors.primary}
+								rightButtonBackgroundColor={Colors.blue600}
+								leftButtonBackgroundColor={Colors.blue600}
 							/>
 							{touched.yield && errors.yield && (
-								<Text style={styles.errorText}>{errors.yield}</Text>
+								<Text style={styles.err}>{errors.yield}</Text>
 							)}
-						</View>
+						</FormCard>
 
-						<View style={styles.sectionCard}>
+						{/* Times */}
+						<FormCard>
 							<View style={styles.timeRow}>
 								<View style={styles.timeGroup}>
-									<Text style={styles.sectionLabel}>Prep Time</Text>
+									<FieldLabel>Prep Time</FieldLabel>
 									<View style={styles.timePair}>
 										<TextInput
 											style={styles.timeInput}
@@ -357,7 +370,7 @@ export default function AddRecipe() {
 											value={String(values.prepTimeHour)}
 											placeholder='hr'
 											keyboardType='numeric'
-											placeholderTextColor={Colors.mutedText}
+											placeholderTextColor={Colors.ink400}
 										/>
 										<Text style={styles.timeSep}>:</Text>
 										<TextInput
@@ -366,12 +379,12 @@ export default function AddRecipe() {
 											value={String(values.prepTimeMin)}
 											placeholder='min'
 											keyboardType='numeric'
-											placeholderTextColor={Colors.mutedText}
+											placeholderTextColor={Colors.ink400}
 										/>
 									</View>
 								</View>
 								<View style={styles.timeGroup}>
-									<Text style={styles.sectionLabel}>Cook Time</Text>
+									<FieldLabel>Cook Time</FieldLabel>
 									<View style={styles.timePair}>
 										<TextInput
 											style={styles.timeInput}
@@ -379,7 +392,7 @@ export default function AddRecipe() {
 											value={String(values.cookTimeHour)}
 											placeholder='hr'
 											keyboardType='numeric'
-											placeholderTextColor={Colors.mutedText}
+											placeholderTextColor={Colors.ink400}
 										/>
 										<Text style={styles.timeSep}>:</Text>
 										<TextInput
@@ -388,249 +401,218 @@ export default function AddRecipe() {
 											value={String(values.cookTimeMin)}
 											placeholder='min'
 											keyboardType='numeric'
-											placeholderTextColor={Colors.mutedText}
+											placeholderTextColor={Colors.ink400}
 										/>
 									</View>
 								</View>
 							</View>
-						</View>
+						</FormCard>
 
-						<View style={styles.sectionCard}>
-						<Text style={styles.sectionLabel}>Ingredients</Text>
-						<FieldArray
-							name='ingredients'
-							render={(arrayHelpers) => (
-								<View>
-									{values.ingredients.map((ingredient, index) => (
-										<View
-											key={index}
-											style={styles.ingredientCard}
-										>
-											<View style={styles.ingredientHeader}>
-												<Text style={styles.ingredientLabel}>
-													Ingredient {index + 1}
-												</Text>
-												{values.ingredients.length > 1 && (
-													<Pressable
-														onPress={() => arrayHelpers.remove(index)}
-														hitSlop={8}
-													>
-														<FontAwesomeIcon
-															icon={faTrash}
-															size={16}
-															color={Colors.danger}
-														/>
-													</Pressable>
-												)}
-											</View>
-
-											<TextInput
-												style={styles.input}
-												onChangeText={handleChange(
-													`ingredients[${index}].name`
-												)}
-												value={ingredient.name}
-												placeholder='Ingredient name'
-												placeholderTextColor={Colors.mutedText}
-											/>
-											{touched.ingredients?.[index]?.name &&
-												errors.ingredients?.[index]?.name && (
-													<Text style={styles.errorText}>
-														{errors.ingredients[index].name}
-													</Text>
-												)}
-
-											<View style={styles.amountRow}>
+						{/* Ingredients */}
+						<FormCard>
+							<View style={styles.sectionHeaderRow}>
+								<FieldLabel>Ingredients</FieldLabel>
+								<Text style={styles.countBadge}>{values.ingredients.length} added</Text>
+							</View>
+							<FieldArray
+								name='ingredients'
+								render={(arrayHelpers) => (
+									<View>
+										{values.ingredients.map((ingredient, index) => (
+											<View key={index} style={styles.ingredientRow}>
+												<Svg width={18} height={18} viewBox='0 0 24 24' fill='none'
+													stroke={Colors.ink400} strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round'>
+													<Circle cx='9' cy='6' r='1.3' />
+													<Circle cx='15' cy='6' r='1.3' />
+													<Circle cx='9' cy='12' r='1.3' />
+													<Circle cx='15' cy='12' r='1.3' />
+													<Circle cx='9' cy='18' r='1.3' />
+													<Circle cx='15' cy='18' r='1.3' />
+												</Svg>
 												<TextInput
-													style={[styles.input, styles.amountInput]}
-													onChangeText={handleChange(
-														`ingredients[${index}].amount`
-													)}
+													style={[styles.input, styles.amtInput]}
+													onChangeText={handleChange(`ingredients[${index}].amount`)}
 													value={String(ingredient.amount)}
-													placeholder='Amount'
+													placeholder='Qty'
 													keyboardType='numeric'
-													placeholderTextColor={Colors.mutedText}
+													placeholderTextColor={Colors.ink400}
 												/>
 												<TextInput
 													style={[styles.input, styles.unitInput]}
-													onChangeText={handleChange(
-														`ingredients[${index}].unit`
-													)}
+													onChangeText={handleChange(`ingredients[${index}].unit`)}
 													value={ingredient.unit}
-													placeholder='Unit (cups, tsp…)'
-													placeholderTextColor={Colors.mutedText}
+													placeholder='Unit'
+													placeholderTextColor={Colors.ink400}
 												/>
+												<TextInput
+													style={[styles.input, styles.nameInput]}
+													onChangeText={handleChange(`ingredients[${index}].name`)}
+													value={ingredient.name}
+													placeholder='Ingredient'
+													placeholderTextColor={Colors.ink400}
+												/>
+												{values.ingredients.length > 1 && (
+													<Pressable hitSlop={8} onPress={() => arrayHelpers.remove(index)}>
+														<Svg width={16} height={16} viewBox='0 0 24 24' fill='none'
+															stroke={Colors.ink400} strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+															<Path d='m6 6 12 12M18 6 6 18' />
+														</Svg>
+													</Pressable>
+												)}
 											</View>
-										</View>
-									))}
-									<Pressable
-										style={styles.addIngredientButton}
-										onPress={() =>
-											arrayHelpers.push({ name: '', amount: '', unit: '' })
-										}
-									>
-										<FontAwesomeIcon
-											icon={faPlus}
-											size={14}
-											color={Colors.primary}
-										/>
-										<Text style={styles.addIngredientText}>
-											Add Ingredient
-										</Text>
-									</Pressable>
-								</View>
+										))}
+										<Pressable
+											style={styles.addIngredientBtn}
+											onPress={() => arrayHelpers.push({ name: '', amount: '', unit: '' })}
+										>
+											<Svg width={16} height={16} viewBox='0 0 24 24' fill='none'
+												stroke={Colors.ink500} strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round'>
+												<Path d='M12 5v14M5 12h14' />
+											</Svg>
+											<Text style={styles.addIngredientText}>Add another ingredient</Text>
+										</Pressable>
+									</View>
+								)}
+							/>
+						</FormCard>
+
+						{/* Instructions */}
+						<FormCard>
+							<FieldLabel>Method</FieldLabel>
+							<TextInput
+								style={[styles.input, styles.textArea]}
+								onChangeText={handleChange('instructions')}
+								value={values.instructions}
+								placeholder='Describe each step, separated by blank lines…'
+								placeholderTextColor={Colors.ink400}
+								multiline
+								textAlignVertical='top'
+							/>
+							{touched.instructions && errors.instructions && (
+								<Text style={styles.err}>{errors.instructions}</Text>
 							)}
-						/>
-						</View>
+						</FormCard>
 
-						<View style={styles.sectionCard}>
-						<Text style={styles.sectionLabel}>Instructions</Text>
-						<TextInput
-							style={[styles.input, styles.textArea]}
-							onChangeText={handleChange('instructions')}
-							value={values.instructions}
-							placeholder='Describe each step…'
-							placeholderTextColor={Colors.mutedText}
-							multiline
-							textAlignVertical='top'
-						/>
-						{touched.instructions && errors.instructions && (
-							<Text style={styles.errorText}>{errors.instructions}</Text>
-						)}
-						</View>
+						{/* Tags */}
+						<FormCard>
+							<FieldLabel>Tags</FieldLabel>
+							{TAG_GROUPS.map((group) => (
+								<View key={group.label} style={styles.tagGroup}>
+									<Text style={styles.tagGroupLabel}>{group.label}</Text>
+									<View style={styles.chipRow}>
+										{group.tags.map((tag) => {
+											const active = values.tags.includes(tag);
+											return (
+												<Pressable
+													key={tag}
+													style={[styles.chip, active && styles.chipActive]}
+													onPress={() => {
+														const next = active
+															? values.tags.filter((t) => t !== tag)
+															: [...values.tags, tag];
+														setFieldValue('tags', next);
+													}}
+												>
+													<Text style={[styles.chipText, active && styles.chipTextActive]}>
+														{tag}
+													</Text>
+												</Pressable>
+											);
+										})}
+									</View>
+								</View>
+							))}
 
-						<View style={styles.sectionCard}>
-						<Text style={styles.sectionLabel}>Tags (optional)</Text>
-						{TAG_GROUPS.map((group) => (
-							<View key={group.label} style={styles.tagGroup}>
-								<Text style={styles.tagGroupLabel}>{group.label}</Text>
-								<View style={styles.tagChipRow}>
-									{group.tags.map((tag) => {
-										const active = values.tags.includes(tag);
-										return (
+							{/* Custom tag input */}
+							<View style={styles.customTagRow}>
+								<TextInput
+									style={[styles.input, styles.customTagInput]}
+									value={customTagInput}
+									onChangeText={setCustomTagInput}
+									placeholder='Custom tag…'
+									placeholderTextColor={Colors.ink400}
+									onSubmitEditing={() => {
+										const trimmed = customTagInput.trim();
+										if (trimmed && !values.tags.includes(trimmed)) {
+											setFieldValue('tags', [...values.tags, trimmed]);
+										}
+										setCustomTagInput('');
+									}}
+									returnKeyType='done'
+								/>
+								<Pressable
+									style={styles.customTagAddBtn}
+									onPress={() => {
+										const trimmed = customTagInput.trim();
+										if (trimmed && !values.tags.includes(trimmed)) {
+											setFieldValue('tags', [...values.tags, trimmed]);
+										}
+										setCustomTagInput('');
+									}}
+								>
+									<Svg width={16} height={16} viewBox='0 0 24 24' fill='none'
+										stroke='#fff' strokeWidth='2.4' strokeLinecap='round' strokeLinejoin='round'>
+										<Path d='M12 5v14M5 12h14' />
+									</Svg>
+								</Pressable>
+							</View>
+
+							{/* Custom tags */}
+							{values.tags
+								.filter((t) => !TAG_GROUPS.flatMap((g) => g.tags).includes(t))
+								.length > 0 && (
+								<View style={styles.chipRow}>
+									{values.tags
+										.filter((t) => !TAG_GROUPS.flatMap((g) => g.tags).includes(t))
+										.map((tag) => (
 											<Pressable
 												key={tag}
-												style={[styles.tagChip, active && styles.tagChipActive]}
-												onPress={() => {
-													const next = active
-														? values.tags.filter((t) => t !== tag)
-														: [...values.tags, tag];
-													setFieldValue('tags', next);
-												}}
+												style={[styles.chip, styles.chipActive]}
+												onPress={() =>
+													setFieldValue('tags', values.tags.filter((t2) => t2 !== tag))
+												}
 											>
-												<Text
-													style={[
-														styles.tagChipText,
-														active && styles.tagChipTextActive,
-													]}
-												>
-													{tag}
-												</Text>
+												<Text style={styles.chipTextActive}>{tag} ×</Text>
 											</Pressable>
-										);
-									})}
+										))}
 								</View>
-							</View>
-						))}
-						<View style={styles.customTagRow}>
-							<TextInput
-								style={[styles.input, styles.customTagInput]}
-								value={customTagInput}
-								onChangeText={setCustomTagInput}
-								placeholder='Custom tag…'
-								placeholderTextColor={Colors.mutedText}
-								onSubmitEditing={() => {
-									const trimmed = customTagInput.trim();
-									if (trimmed && !values.tags.includes(trimmed)) {
-										setFieldValue('tags', [...values.tags, trimmed]);
-									}
-									setCustomTagInput('');
-								}}
-								returnKeyType='done'
-							/>
-							<Pressable
-								style={styles.customTagAddBtn}
-								onPress={() => {
-									const trimmed = customTagInput.trim();
-									if (trimmed && !values.tags.includes(trimmed)) {
-										setFieldValue('tags', [...values.tags, trimmed]);
-									}
-									setCustomTagInput('');
-								}}
-							>
-								<FontAwesomeIcon
-									icon={faPlus}
-									size={14}
-									color={Colors.white}
-								/>
+							)}
+						</FormCard>
+
+						{/* Photo */}
+						<FormCard>
+							<FieldLabel>Cover photo</FieldLabel>
+							<Pressable style={styles.photoPicker} onPress={() => pickImage(setFieldValue)}>
+								<Svg width={24} height={24} viewBox='0 0 24 24' fill='none'
+									stroke={Colors.blue700} strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'>
+									<Path d='M4 8a2 2 0 0 1 2-2h2.5l1.5-2h4l1.5 2H18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z' />
+									<Circle cx='12' cy='13' r='3.5' />
+								</Svg>
+								<Text style={styles.photoPickerText}>
+									{values.recipePhoto ? 'Change photo' : 'Drop a photo or tap to choose'}
+								</Text>
 							</Pressable>
-						</View>
-						{values.tags.filter(
-							(t) => !TAG_GROUPS.flatMap((g) => g.tags).includes(t)
-						).length > 0 && (
-							<View style={styles.tagChipRow}>
-								{values.tags
-									.filter((t) => !TAG_GROUPS.flatMap((g) => g.tags).includes(t))
-									.map((tag) => (
-										<Pressable
-											key={tag}
-											style={[styles.tagChip, styles.tagChipActive]}
-											onPress={() =>
-												setFieldValue(
-													'tags',
-													values.tags.filter((t2) => t2 !== tag)
-												)
-											}
-										>
-											<Text style={styles.tagChipTextActive}>{tag} ×</Text>
-										</Pressable>
-									))}
-							</View>
-						)}
+							{imageUri && (
+								<Image source={{ uri: imageUri }} style={styles.photoPreview} />
+							)}
+							{touched.recipePhoto && errors.recipePhoto && (
+								<Text style={styles.err}>{errors.recipePhoto}</Text>
+							)}
+						</FormCard>
 
-						</View>
-
-						<View style={styles.sectionCard}>
-						<Text style={styles.sectionLabel}>Recipe Photo</Text>
-						<Pressable
-							style={styles.photoPicker}
-							onPress={() => pickImage(setFieldValue)}
-						>
-							<FontAwesomeIcon
-								icon={faImage}
-								size={20}
-								color={Colors.primary}
-							/>
-							<Text style={styles.photoPickerText}>
-								{values.recipePhoto ? 'Change Photo' : 'Choose Photo'}
-							</Text>
-						</Pressable>
-						{imageUri && (
-							<Image
-								source={{ uri: imageUri }}
-								style={styles.imagePreview}
-							/>
-						)}
-						{touched.recipePhoto && errors.recipePhoto && (
-							<Text style={styles.errorText}>{errors.recipePhoto}</Text>
-						)}
-						</View>
-
+						{/* Submit */}
 						<Pressable
 							style={({ pressed }) => [
-								styles.submitButton,
-								(pressed || isSubmitting) && styles.submitButtonPressed,
+								styles.submitBtn,
+								(pressed || isSubmitting) && { opacity: 0.75 },
 							]}
 							onPress={handleSubmit}
 							disabled={isSubmitting}
 						>
 							{isSubmitting ? (
-								<ActivityIndicator
-									color={Colors.white}
-									size='small'
-								/>
+								<ActivityIndicator color={Colors.white} size='small' />
 							) : (
-								<Text style={styles.submitButtonText}>Submit Recipe</Text>
+								<Text style={styles.submitBtnText}>Save recipe</Text>
 							)}
 						</Pressable>
 					</View>
@@ -641,59 +623,93 @@ export default function AddRecipe() {
 }
 
 const styles = StyleSheet.create({
-	scrollView: {
+	scroll: {
 		flex: 1,
-		backgroundColor: Colors.background,
+		backgroundColor: Colors.bg,
 	},
 	scrollContent: {
 		padding: 16,
 		paddingBottom: 48,
 	},
 	form: {
-		gap: 0,
+		gap: 12,
 	},
-	sectionCard: {
-		backgroundColor: Colors.white,
-		borderRadius: 16,
-		paddingHorizontal: 16,
-		paddingBottom: 16,
-		marginBottom: 12,
-		shadowColor: Colors.shadow,
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.07,
-		shadowRadius: 8,
-		elevation: 2,
+
+	// Import banner
+	importBanner: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 14,
+		backgroundColor: Colors.blue100,
+		borderRadius: 20,
+		borderWidth: 1,
+		borderColor: Colors.blue100,
+		padding: 16,
 	},
-	sectionLabel: {
-		fontFamily: 'OpenSans-SemiBold',
-		fontSize: 12,
-		color: Colors.lightText,
-		marginTop: 16,
-		marginBottom: 6,
+	importIcon: {
+		width: 46,
+		height: 46,
+		borderRadius: 14,
+		backgroundColor: Colors.paper,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	importTitle: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 15,
+		color: Colors.ink900,
+		marginBottom: 2,
+	},
+	importSub: {
+		fontFamily: 'Nunito-Medium',
+		fontSize: 13,
+		color: Colors.ink700,
+	},
+
+	// Form card
+	formCard: {
+		backgroundColor: Colors.paper,
+		borderRadius: 22,
+		padding: 18,
+		paddingTop: 14,
+		borderWidth: 1,
+		borderColor: Colors.ink200,
+		gap: 4,
+	},
+
+	// Field label
+	fieldLabel: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 11.5,
+		color: Colors.ink500,
 		textTransform: 'uppercase',
-		letterSpacing: 0.8,
+		letterSpacing: 0.7,
+		marginBottom: 6,
+		marginTop: 10,
 	},
+
+	// Inputs
 	input: {
 		height: 46,
-		borderColor: Colors.inputBorder,
 		borderWidth: 1,
-		borderRadius: 10,
+		borderColor: Colors.ink200,
+		borderRadius: 14,
 		paddingHorizontal: 14,
-		backgroundColor: Colors.white,
-		fontFamily: 'OpenSans',
+		backgroundColor: Colors.bg,
+		fontFamily: 'Nunito-Medium',
 		fontSize: 15,
-		color: Colors.darkText,
-		marginBottom: 4,
+		color: Colors.ink900,
 	},
 	textArea: {
-		height: 120,
+		height: 140,
 		paddingTop: 12,
-		marginBottom: 4,
 	},
+
+	// Times
 	timeRow: {
 		flexDirection: 'row',
-		gap: 24,
-		marginTop: 16,
+		gap: 20,
+		marginTop: 4,
 	},
 	timeGroup: {
 		flex: 1,
@@ -706,196 +722,196 @@ const styles = StyleSheet.create({
 	timeInput: {
 		flex: 1,
 		height: 46,
-		borderColor: Colors.inputBorder,
 		borderWidth: 1,
-		borderRadius: 10,
+		borderColor: Colors.ink200,
+		borderRadius: 14,
 		paddingHorizontal: 10,
-		backgroundColor: Colors.white,
-		fontFamily: 'OpenSans',
+		backgroundColor: Colors.bg,
+		fontFamily: 'Nunito-Medium',
 		fontSize: 15,
-		color: Colors.darkText,
+		color: Colors.ink900,
 		textAlign: 'center',
 	},
 	timeSep: {
-		fontFamily: 'OpenSans-Bold',
+		fontFamily: 'Nunito-ExtraBold',
 		fontSize: 20,
-		color: Colors.darkText,
+		color: Colors.ink700,
 	},
-	ingredientCard: {
-		backgroundColor: Colors.white,
-		borderRadius: 14,
-		padding: 14,
-		marginBottom: 10,
-		borderColor: Colors.inputBorder,
-		borderWidth: 1,
-		shadowColor: Colors.shadow,
-		shadowOffset: { width: 0, height: 1 },
-		shadowOpacity: 0.05,
-		shadowRadius: 4,
-		elevation: 1,
-	},
-	ingredientHeader: {
+
+	// Ingredient rows
+	sectionHeaderRow: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
+	},
+	countBadge: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 12,
+		color: Colors.ink500,
+	},
+	ingredientRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 8,
+		backgroundColor: Colors.bg,
+		borderWidth: 1,
+		borderColor: Colors.ink200,
+		borderRadius: 14,
+		padding: 8,
 		marginBottom: 8,
 	},
-	ingredientLabel: {
-		fontFamily: 'OpenSans-SemiBold',
-		fontSize: 13,
-		color: Colors.mediumText,
-	},
-	amountRow: {
-		flexDirection: 'row',
-		gap: 8,
-	},
-	amountInput: {
+	amtInput: {
 		flex: 1,
+		height: 36,
+		borderRadius: 10,
+		paddingHorizontal: 8,
 		marginBottom: 0,
+		fontSize: 14,
+		minWidth: 44,
 	},
 	unitInput: {
-		flex: 2,
+		flex: 1.2,
+		height: 36,
+		borderRadius: 10,
+		paddingHorizontal: 8,
 		marginBottom: 0,
+		fontSize: 14,
 	},
-	addIngredientButton: {
+	nameInput: {
+		flex: 2.5,
+		height: 36,
+		borderRadius: 10,
+		paddingHorizontal: 8,
+		marginBottom: 0,
+		fontSize: 14,
+	},
+	addIngredientBtn: {
 		flexDirection: 'row',
 		alignItems: 'center',
+		justifyContent: 'center',
 		gap: 8,
-		paddingVertical: 12,
-		paddingHorizontal: 4,
+		padding: 13,
+		borderRadius: 14,
+		borderWidth: 1.5,
+		borderColor: Colors.ink300,
+		borderStyle: 'dashed',
 	},
 	addIngredientText: {
-		fontFamily: 'OpenSans-SemiBold',
-		fontSize: 14,
-		color: Colors.primary,
+		fontFamily: 'Nunito-Bold',
+		fontSize: 13.5,
+		color: Colors.ink500,
 	},
-	photoPicker: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 10,
-		backgroundColor: Colors.surfaceAlt,
-		borderRadius: 12,
-		borderColor: Colors.primary,
-		borderWidth: 1.5,
-		padding: 14,
-	},
-	photoPickerText: {
-		fontFamily: 'OpenSans-SemiBold',
-		fontSize: 15,
-		color: Colors.primary,
-	},
-	imagePreview: {
-		width: '100%',
-		height: 180,
-		borderRadius: 10,
-		marginTop: 10,
-		resizeMode: 'cover',
-	},
-	errorText: {
-		fontFamily: 'OpenSans',
-		fontSize: 12,
-		color: Colors.error,
-		marginBottom: 4,
-	},
-	submitButton: {
-		backgroundColor: Colors.primary,
-		borderRadius: 14,
-		paddingVertical: 16,
-		alignItems: 'center',
-		marginTop: 28,
-		shadowColor: Colors.shadow,
-		shadowOffset: { width: 0, height: 3 },
-		shadowOpacity: 0.20,
-		shadowRadius: 8,
-		elevation: 4,
-	},
-	submitButtonPressed: {
-		opacity: 0.75,
-	},
-	submitButtonText: {
-		fontFamily: 'OpenSans-Bold',
-		fontSize: 16,
-		color: Colors.white,
-	},
+
+	// Tags
 	tagGroup: {
-		marginBottom: 8,
+		marginBottom: 10,
 	},
 	tagGroupLabel: {
-		fontFamily: 'OpenSans-SemiBold',
-		fontSize: 12,
-		color: Colors.lightText,
-		marginBottom: 6,
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 11,
+		color: Colors.ink500,
 		textTransform: 'uppercase',
-		letterSpacing: 0.5,
+		letterSpacing: 0.7,
+		marginBottom: 8,
 	},
-	tagChipRow: {
+	chipRow: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
-		gap: 8,
-		marginBottom: 4,
+		gap: 7,
 	},
-	tagChip: {
-		borderRadius: 24,
+	chip: {
+		borderRadius: 999,
 		paddingHorizontal: 14,
-		paddingVertical: 7,
-		backgroundColor: Colors.white,
-		borderColor: Colors.inputBorder,
+		paddingVertical: 8,
+		backgroundColor: Colors.paper,
 		borderWidth: 1,
+		borderColor: Colors.ink300,
 	},
-	tagChipActive: {
-		backgroundColor: Colors.primary,
-		borderColor: Colors.primary,
+	chipActive: {
+		backgroundColor: Colors.blue700,
+		borderColor: Colors.blue700,
 	},
-	tagChipText: {
-		fontFamily: 'OpenSans-SemiBold',
-		fontSize: 12,
-		color: Colors.darkText,
+	chipText: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 13,
+		color: Colors.ink700,
 	},
-	tagChipTextActive: {
+	chipTextActive: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 13,
 		color: Colors.white,
-		fontFamily: 'OpenSans-SemiBold',
-		fontSize: 12,
 	},
 	customTagRow: {
 		flexDirection: 'row',
 		gap: 8,
 		alignItems: 'center',
-		marginTop: 4,
-		marginBottom: 4,
+		marginTop: 6,
+		marginBottom: 6,
 	},
 	customTagInput: {
 		flex: 1,
 		marginBottom: 0,
+		height: 44,
 	},
 	customTagAddBtn: {
-		width: 46,
-		height: 46,
-		borderRadius: 10,
-		backgroundColor: Colors.primary,
-		justifyContent: 'center',
+		width: 44,
+		height: 44,
+		borderRadius: 14,
+		backgroundColor: Colors.blue600,
 		alignItems: 'center',
+		justifyContent: 'center',
 	},
-	importBanner: {
+
+	// Photo
+	photoPicker: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
 		gap: 10,
-		backgroundColor: Colors.primaryDark,
+		borderRadius: 18,
+		paddingVertical: 30,
+		backgroundColor: Colors.blue50,
+		borderWidth: 1.5,
+		borderColor: Colors.blue300,
+		borderStyle: 'dashed',
+	},
+	photoPickerText: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 14.5,
+		color: Colors.blue800,
+	},
+	photoPreview: {
+		width: '100%',
+		height: 200,
 		borderRadius: 14,
-		paddingVertical: 14,
-		marginBottom: 12,
+		marginTop: 10,
+		resizeMode: 'cover',
+	},
+
+	// Submit
+	submitBtn: {
+		backgroundColor: Colors.blue600,
+		borderRadius: 999,
+		paddingVertical: 16,
+		alignItems: 'center',
+		marginTop: 8,
 		shadowColor: Colors.shadow,
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: 3 },
 		shadowOpacity: 0.15,
-		shadowRadius: 6,
-		elevation: 3,
+		shadowRadius: 8,
+		elevation: 4,
 	},
-	importBannerPressed: {
-		opacity: 0.75,
-	},
-	importBannerText: {
-		fontFamily: 'OpenSans-Bold',
-		fontSize: 15,
+	submitBtnText: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 16,
 		color: Colors.white,
+		letterSpacing: -0.2,
+	},
+
+	err: {
+		fontFamily: 'Nunito-Regular',
+		fontSize: 12,
+		color: Colors.error,
+		marginBottom: 4,
 	},
 });

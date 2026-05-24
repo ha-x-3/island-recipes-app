@@ -41,6 +41,12 @@
       "expo-font",
       "expo-asset"
     ],
-    "newArchEnabled": true
+    "newArchEnabled": true,
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "71ae58c9-1967-4859-8cc4-bc98fd85e45a"
+      }
+    }
   }
 }

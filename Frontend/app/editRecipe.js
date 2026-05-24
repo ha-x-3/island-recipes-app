@@ -165,7 +165,7 @@ export default function EditRecipe() {
 	if (loading) {
 		return (
 			<View style={styles.loadingContainer}>
-				<ActivityIndicator size='large' color={Colors.primary} />
+				<ActivityIndicator size='large' color={Colors.blue600} />
 			</View>
 		);
 	}
@@ -215,7 +215,7 @@ export default function EditRecipe() {
 								onChangeText={handleChange('recipeName')}
 								value={values.recipeName}
 								placeholder='e.g. Jerk Chicken'
-								placeholderTextColor={Colors.mutedText}
+								placeholderTextColor={Colors.ink400}
 							/>
 							{touched.recipeName && errors.recipeName && (
 								<Text style={styles.errorText}>{errors.recipeName}</Text>
@@ -232,10 +232,10 @@ export default function EditRecipe() {
 								valueType='integer'
 								minValue={1}
 								rounded
-								textColor={Colors.darkText}
-								iconStyle={{ color: Colors.white }}
-								rightButtonBackgroundColor={Colors.primary}
-								leftButtonBackgroundColor={Colors.primary}
+								textColor={Colors.ink900}
+								iconStyle={{ color: Colors.paper }}
+								rightButtonBackgroundColor={Colors.blue600}
+								leftButtonBackgroundColor={Colors.blue600}
 							/>
 							{touched.yield && errors.yield && (
 								<Text style={styles.errorText}>{errors.yield}</Text>
@@ -253,7 +253,7 @@ export default function EditRecipe() {
 											value={String(values.prepTimeHour)}
 											placeholder='hr'
 											keyboardType='numeric'
-											placeholderTextColor={Colors.mutedText}
+											placeholderTextColor={Colors.ink400}
 										/>
 										<Text style={styles.timeSep}>:</Text>
 										<TextInput
@@ -262,7 +262,7 @@ export default function EditRecipe() {
 											value={String(values.prepTimeMin)}
 											placeholder='min'
 											keyboardType='numeric'
-											placeholderTextColor={Colors.mutedText}
+											placeholderTextColor={Colors.ink400}
 										/>
 									</View>
 								</View>
@@ -275,7 +275,7 @@ export default function EditRecipe() {
 											value={String(values.cookTimeHour)}
 											placeholder='hr'
 											keyboardType='numeric'
-											placeholderTextColor={Colors.mutedText}
+											placeholderTextColor={Colors.ink400}
 										/>
 										<Text style={styles.timeSep}>:</Text>
 										<TextInput
@@ -284,7 +284,7 @@ export default function EditRecipe() {
 											value={String(values.cookTimeMin)}
 											placeholder='min'
 											keyboardType='numeric'
-											placeholderTextColor={Colors.mutedText}
+											placeholderTextColor={Colors.ink400}
 										/>
 									</View>
 								</View>
@@ -322,7 +322,7 @@ export default function EditRecipe() {
 													onChangeText={handleChange(`ingredients[${index}].name`)}
 													value={ingredient.name}
 													placeholder='Ingredient name'
-													placeholderTextColor={Colors.mutedText}
+													placeholderTextColor={Colors.ink400}
 												/>
 												{touched.ingredients?.[index]?.name &&
 													errors.ingredients?.[index]?.name && (
@@ -340,7 +340,7 @@ export default function EditRecipe() {
 														value={String(ingredient.amount)}
 														placeholder='Amount'
 														keyboardType='numeric'
-														placeholderTextColor={Colors.mutedText}
+														placeholderTextColor={Colors.ink400}
 													/>
 													<TextInput
 														style={[styles.input, styles.unitInput]}
@@ -349,7 +349,7 @@ export default function EditRecipe() {
 														)}
 														value={ingredient.unit}
 														placeholder='Unit (cups, tsp…)'
-														placeholderTextColor={Colors.mutedText}
+														placeholderTextColor={Colors.ink400}
 													/>
 												</View>
 											</View>
@@ -363,7 +363,7 @@ export default function EditRecipe() {
 											<FontAwesomeIcon
 												icon={faPlus}
 												size={14}
-												color={Colors.primary}
+												color={Colors.blue600}
 											/>
 											<Text style={styles.addIngredientText}>Add Ingredient</Text>
 										</Pressable>
@@ -379,7 +379,7 @@ export default function EditRecipe() {
 								onChangeText={handleChange('instructions')}
 								value={values.instructions}
 								placeholder='Describe each step…'
-								placeholderTextColor={Colors.mutedText}
+								placeholderTextColor={Colors.ink400}
 								multiline
 								textAlignVertical='top'
 							/>
@@ -427,7 +427,7 @@ export default function EditRecipe() {
 									value={customTagInput}
 									onChangeText={setCustomTagInput}
 									placeholder='Custom tag…'
-									placeholderTextColor={Colors.mutedText}
+									placeholderTextColor={Colors.ink400}
 									onSubmitEditing={() => {
 										const trimmed = customTagInput.trim();
 										if (trimmed && !values.tags.includes(trimmed)) {
@@ -447,7 +447,7 @@ export default function EditRecipe() {
 										setCustomTagInput('');
 									}}
 								>
-									<FontAwesomeIcon icon={faPlus} size={14} color={Colors.white} />
+									<FontAwesomeIcon icon={faPlus} size={14} color={Colors.paper} />
 								</Pressable>
 							</View>
 							{values.tags.filter(
@@ -480,7 +480,7 @@ export default function EditRecipe() {
 								style={styles.photoPicker}
 								onPress={() => pickImage(setFieldValue)}
 							>
-								<FontAwesomeIcon icon={faImage} size={20} color={Colors.primary} />
+								<FontAwesomeIcon icon={faImage} size={20} color={Colors.blue600} />
 								<Text style={styles.photoPickerText}>Change Photo</Text>
 							</Pressable>
 							<Image
@@ -498,7 +498,7 @@ export default function EditRecipe() {
 							disabled={isSubmitting}
 						>
 							{isSubmitting ? (
-								<ActivityIndicator color={Colors.white} size='small' />
+								<ActivityIndicator color={Colors.paper} size='small' />
 							) : (
 								<Text style={styles.submitButtonText}>Save Changes</Text>
 							)}
@@ -515,11 +515,11 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: Colors.background,
+		backgroundColor: Colors.bg,
 	},
 	scrollView: {
 		flex: 1,
-		backgroundColor: Colors.background,
+		backgroundColor: Colors.bg,
 	},
 	scrollContent: {
 		padding: 16,
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
 		gap: 0,
 	},
 	sectionCard: {
-		backgroundColor: Colors.white,
+		backgroundColor: Colors.paper,
 		borderRadius: 16,
 		paddingHorizontal: 16,
 		paddingBottom: 16,
@@ -541,9 +541,9 @@ const styles = StyleSheet.create({
 		elevation: 2,
 	},
 	sectionLabel: {
-		fontFamily: 'OpenSans-SemiBold',
+		fontFamily: 'Nunito-Bold',
 		fontSize: 12,
-		color: Colors.lightText,
+		color: Colors.ink500,
 		marginTop: 16,
 		marginBottom: 6,
 		textTransform: 'uppercase',
@@ -551,14 +551,14 @@ const styles = StyleSheet.create({
 	},
 	input: {
 		height: 46,
-		borderColor: Colors.inputBorder,
+		borderColor: Colors.ink200,
 		borderWidth: 1,
 		borderRadius: 10,
 		paddingHorizontal: 14,
-		backgroundColor: Colors.white,
-		fontFamily: 'OpenSans',
+		backgroundColor: Colors.paper,
+		fontFamily: 'Nunito-Medium',
 		fontSize: 15,
-		color: Colors.darkText,
+		color: Colors.ink900,
 		marginBottom: 4,
 	},
 	textArea: {
@@ -582,27 +582,27 @@ const styles = StyleSheet.create({
 	timeInput: {
 		flex: 1,
 		height: 46,
-		borderColor: Colors.inputBorder,
+		borderColor: Colors.ink200,
 		borderWidth: 1,
 		borderRadius: 10,
 		paddingHorizontal: 10,
-		backgroundColor: Colors.white,
-		fontFamily: 'OpenSans',
+		backgroundColor: Colors.paper,
+		fontFamily: 'Nunito-Medium',
 		fontSize: 15,
-		color: Colors.darkText,
+		color: Colors.ink900,
 		textAlign: 'center',
 	},
 	timeSep: {
-		fontFamily: 'OpenSans-Bold',
+		fontFamily: 'Nunito-ExtraBold',
 		fontSize: 20,
-		color: Colors.darkText,
+		color: Colors.ink900,
 	},
 	ingredientCard: {
-		backgroundColor: Colors.white,
+		backgroundColor: Colors.paper,
 		borderRadius: 14,
 		padding: 14,
 		marginBottom: 10,
-		borderColor: Colors.inputBorder,
+		borderColor: Colors.ink200,
 		borderWidth: 1,
 		shadowColor: Colors.shadow,
 		shadowOffset: { width: 0, height: 1 },
@@ -617,9 +617,9 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 	},
 	ingredientLabel: {
-		fontFamily: 'OpenSans-SemiBold',
+		fontFamily: 'Nunito-Bold',
 		fontSize: 13,
-		color: Colors.mediumText,
+		color: Colors.ink700,
 	},
 	amountRow: {
 		flexDirection: 'row',
@@ -641,24 +641,24 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 4,
 	},
 	addIngredientText: {
-		fontFamily: 'OpenSans-SemiBold',
+		fontFamily: 'Nunito-Bold',
 		fontSize: 14,
-		color: Colors.primary,
+		color: Colors.blue600,
 	},
 	photoPicker: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		gap: 10,
-		backgroundColor: Colors.surfaceAlt,
+		backgroundColor: Colors.blue50,
 		borderRadius: 12,
-		borderColor: Colors.primary,
+		borderColor: Colors.blue600,
 		borderWidth: 1.5,
 		padding: 14,
 	},
 	photoPickerText: {
-		fontFamily: 'OpenSans-SemiBold',
+		fontFamily: 'Nunito-Bold',
 		fontSize: 15,
-		color: Colors.primary,
+		color: Colors.blue600,
 	},
 	imagePreview: {
 		width: '100%',
@@ -668,13 +668,13 @@ const styles = StyleSheet.create({
 		resizeMode: 'cover',
 	},
 	errorText: {
-		fontFamily: 'OpenSans',
+		fontFamily: 'Nunito-Medium',
 		fontSize: 12,
 		color: Colors.error,
 		marginBottom: 4,
 	},
 	submitButton: {
-		backgroundColor: Colors.primary,
+		backgroundColor: Colors.blue600,
 		borderRadius: 14,
 		paddingVertical: 16,
 		alignItems: 'center',
@@ -689,17 +689,17 @@ const styles = StyleSheet.create({
 		opacity: 0.75,
 	},
 	submitButtonText: {
-		fontFamily: 'OpenSans-Bold',
+		fontFamily: 'Nunito-ExtraBold',
 		fontSize: 16,
-		color: Colors.white,
+		color: Colors.paper,
 	},
 	tagGroup: {
 		marginBottom: 8,
 	},
 	tagGroupLabel: {
-		fontFamily: 'OpenSans-SemiBold',
+		fontFamily: 'Nunito-Bold',
 		fontSize: 12,
-		color: Colors.lightText,
+		color: Colors.ink500,
 		marginBottom: 6,
 		textTransform: 'uppercase',
 		letterSpacing: 0.5,
@@ -714,22 +714,22 @@ const styles = StyleSheet.create({
 		borderRadius: 24,
 		paddingHorizontal: 14,
 		paddingVertical: 7,
-		backgroundColor: Colors.white,
-		borderColor: Colors.inputBorder,
+		backgroundColor: Colors.paper,
+		borderColor: Colors.ink200,
 		borderWidth: 1,
 	},
 	tagChipActive: {
-		backgroundColor: Colors.primary,
-		borderColor: Colors.primary,
+		backgroundColor: Colors.blue600,
+		borderColor: Colors.blue600,
 	},
 	tagChipText: {
-		fontFamily: 'OpenSans-SemiBold',
+		fontFamily: 'Nunito-Bold',
 		fontSize: 12,
-		color: Colors.darkText,
+		color: Colors.ink900,
 	},
 	tagChipTextActive: {
-		color: Colors.white,
-		fontFamily: 'OpenSans-SemiBold',
+		color: Colors.paper,
+		fontFamily: 'Nunito-Bold',
 		fontSize: 12,
 	},
 	customTagRow: {
@@ -747,7 +747,7 @@ const styles = StyleSheet.create({
 		width: 46,
 		height: 46,
 		borderRadius: 10,
-		backgroundColor: Colors.primary,
+		backgroundColor: Colors.blue600,
 		justifyContent: 'center',
 		alignItems: 'center',
 	},

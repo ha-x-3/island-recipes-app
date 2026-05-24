@@ -1,22 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
 	View,
 	Text,
-	FlatList,
+	ScrollView,
 	StyleSheet,
 	Pressable,
 	TextInput,
 	Modal,
 } from 'react-native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
-import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
-import { faCartShopping } from '@fortawesome/free-solid-svg-icons/faCartShopping';
+import { Svg, Path, Circle } from 'react-native-svg';
 import { useShoppingList } from '../../components/ShoppingListProvider';
 import { Colors } from '../../constants/colors';
 
+function CheckCircle({ checked }) {
+	return (
+		<View style={[styles.check, checked && styles.checkDone]}>
+			{checked && (
+				<Svg width={14} height={14} viewBox='0 0 24 24' fill='none'
+					stroke='#fff' strokeWidth='2.6' strokeLinecap='round' strokeLinejoin='round'>
+					<Path d='m4 12 5 5L20 6' />
+				</Svg>
+			)}
+		</View>
+	);
+}
+
 export default function ShoppingList() {
-	const { shoppingList, removeItem, updateItem } = useShoppingList();
+	const { shoppingList, removeItem, updateItem, addItem } = useShoppingList();
+	const [checked, setChecked] = useState(new Set());
 	const [editModalVisible, setEditModalVisible] = useState(false);
 	const [currentItem, setCurrentItem] = useState(null);
 	const [updatedAmount, setUpdatedAmount] = useState('');
@@ -25,9 +36,9 @@ export default function ShoppingList() {
 
 	const handleEdit = (item) => {
 		setCurrentItem(item);
-		setUpdatedAmount(item.amount.toString());
-		setUpdatedUnit(item.unit);
-		setUpdatedName(item.name);
+		setUpdatedAmount(item.amount?.toString() ?? '');
+		setUpdatedUnit(item.unit ?? '');
+		setUpdatedName(item.name ?? '');
 		setEditModalVisible(true);
 	};
 
@@ -40,64 +51,149 @@ export default function ShoppingList() {
 		setEditModalVisible(false);
 	};
 
-	const renderItem = ({ item, index }) => (
-		<View style={[styles.listItem, index === 0 && styles.listItemFirst]}>
-			<View style={styles.itemDot} />
-			<Text style={styles.itemText}>
-				{item.amount} {item.unit} {item.name}
-			</Text>
-			<View style={styles.itemActions}>
-				<Pressable
-					style={styles.iconButton}
-					onPress={() => handleEdit(item)}
-					hitSlop={8}
-				>
-					<FontAwesomeIcon
-						icon={faPencil}
-						size={16}
-						color={Colors.info}
-					/>
-				</Pressable>
-				<Pressable
-					style={styles.iconButton}
-					onPress={() => removeItem(item.name)}
-					hitSlop={8}
-				>
-					<FontAwesomeIcon
-						icon={faTrash}
-						size={16}
-						color={Colors.danger}
-					/>
-				</Pressable>
+	const toggleCheck = (key) => {
+		setChecked((prev) => {
+			const next = new Set(prev);
+			if (next.has(key)) next.delete(key);
+			else next.add(key);
+			return next;
+		});
+	};
+
+	const total = shoppingList.length;
+	const done = checked.size;
+	const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+	// Group items by their "from" recipe if available, else put in "Other"
+	const groups = useMemo(() => {
+		const map = {};
+		shoppingList.forEach((item, idx) => {
+			const group = item.from || 'Other items';
+			if (!map[group]) map[group] = [];
+			map[group].push({ item, idx });
+		});
+		return Object.entries(map);
+	}, [shoppingList]);
+
+	if (total === 0) {
+		return (
+			<View style={styles.empty}>
+				<View style={styles.emptyIconWrap}>
+					<Svg width={44} height={44} viewBox='0 0 24 24' fill='none'
+						stroke={Colors.blue600} strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'>
+						<Path d='M3 4h2.5l2.4 11.2a2 2 0 0 0 2 1.6H18a2 2 0 0 0 2-2l1-7H6.5' />
+						<Circle cx='10' cy='20' r='1.6' />
+						<Circle cx='17' cy='20' r='1.6' />
+					</Svg>
+				</View>
+				<Text style={styles.emptyTitle}>Your cart is empty</Text>
+				<Text style={styles.emptyBody}>
+					Tap any ingredient in a recipe to add it here.
+				</Text>
 			</View>
-		</View>
-	);
+		);
+	}
 
 	return (
 		<View style={styles.container}>
-			{shoppingList.length === 0 ? (
-				<View style={styles.emptyContainer}>
-					<View style={styles.emptyIconCircle}>
-						<FontAwesomeIcon
-							icon={faCartShopping}
-							size={44}
-							color={Colors.primary}
-						/>
+			<ScrollView contentContainerStyle={styles.scrollContent}>
+				{/* Progress strip */}
+				{total > 0 && (
+					<View style={styles.progressStrip}>
+						<Text style={styles.progressPct}>{pct}%</Text>
+						<View style={{ flex: 1 }}>
+							<Text style={styles.progressLabel}>
+								{done === total ? 'All done!' : `${total - done} left to gather`}
+							</Text>
+							<View style={styles.progressTrack}>
+								<View style={[styles.progressFill, { width: `${pct}%` }]} />
+							</View>
+						</View>
+						<Text style={styles.progressFraction}>{done}/{total}</Text>
 					</View>
-					<Text style={styles.emptyText}>Your cart is empty</Text>
-					<Text style={styles.emptySubText}>
-						Tap any ingredient in a recipe to add it here.
-					</Text>
-				</View>
-			) : (
-				<FlatList
-					data={shoppingList}
-					renderItem={renderItem}
-					keyExtractor={(item, index) => `${item.name}-${index}`}
-					contentContainerStyle={styles.listContent}
-				/>
-			)}
+				)}
 
+				{/* Groups */}
+				{groups.map(([groupName, entries]) => {
+					const groupDone = entries.filter(({ idx }) => checked.has(idx)).length;
+					return (
+						<View key={groupName} style={styles.group}>
+							<View style={styles.groupHeader}>
+								<Text style={styles.groupTitle}>{groupName}</Text>
+								<Text style={styles.groupCount}>
+									{entries.length - groupDone} to gather
+								</Text>
+							</View>
+							{entries.map(({ item, idx }, i) => {
+								const key = idx;
+								const isChecked = checked.has(key);
+								return (
+									<Pressable
+										key={key}
+										style={[
+											styles.row,
+											i === 0 && styles.rowFirst,
+											isChecked && styles.rowChecked,
+										]}
+										onPress={() => toggleCheck(key)}
+									>
+										<CheckCircle checked={isChecked} />
+										<Text
+											style={[styles.rowText, isChecked && styles.rowTextDone]}
+										>
+											<Text style={styles.rowAmount}>
+												{item.amount} {item.unit}{' '}
+											</Text>
+											{item.name}
+										</Text>
+										<View style={styles.rowActions}>
+											<Pressable
+												hitSlop={8}
+												onPress={() => handleEdit(item)}
+											>
+												<Svg width={16} height={16} viewBox='0 0 24 24' fill='none'
+													stroke={Colors.ink400} strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round'>
+													<Path d='M16 3.5 20.5 8 8 20.5H3.5V16Z' />
+													<Path d='m13.5 6 4.5 4.5' />
+												</Svg>
+											</Pressable>
+											<Pressable
+												hitSlop={8}
+												onPress={() => removeItem(item.name)}
+											>
+												<Svg width={16} height={16} viewBox='0 0 24 24' fill='none'
+													stroke={Colors.danger} strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round'>
+													<Path d='M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13' />
+												</Svg>
+											</Pressable>
+										</View>
+									</Pressable>
+								);
+							})}
+						</View>
+					);
+				})}
+
+				{/* Add item by hand */}
+				<Pressable
+					style={styles.addBtn}
+					onPress={() => {
+						setCurrentItem(null);
+						setUpdatedAmount('');
+						setUpdatedUnit('');
+						setUpdatedName('');
+						setEditModalVisible(true);
+					}}
+				>
+					<Svg width={18} height={18} viewBox='0 0 24 24' fill='none'
+						stroke={Colors.ink500} strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+						<Path d='M12 5v14M5 12h14' />
+					</Svg>
+					<Text style={styles.addBtnText}>Add an item by hand</Text>
+				</Pressable>
+			</ScrollView>
+
+			{/* Edit modal */}
 			<Modal
 				visible={editModalVisible}
 				animationType='slide'
@@ -105,57 +201,66 @@ export default function ShoppingList() {
 				onRequestClose={() => setEditModalVisible(false)}
 			>
 				<Pressable
-					style={styles.modalBackdrop}
+					style={styles.backdrop}
 					onPress={() => setEditModalVisible(false)}
 				>
-					<Pressable style={styles.modalSheet}>
-						<Text style={styles.modalTitle}>Edit Item</Text>
+					<Pressable style={styles.sheet}>
+						<Text style={styles.sheetTitle}>
+							{currentItem ? 'Edit item' : 'Add item'}
+						</Text>
 
-						<Text style={styles.modalLabel}>Name</Text>
+						<Text style={styles.fieldLabel}>Name</Text>
 						<TextInput
-							style={styles.modalInput}
+							style={styles.fieldInput}
 							value={updatedName}
 							onChangeText={setUpdatedName}
 							placeholder='Item name'
-							placeholderTextColor={Colors.mutedText}
+							placeholderTextColor={Colors.ink400}
 						/>
 
-						<View style={styles.modalRow}>
-							<View style={styles.modalHalf}>
-								<Text style={styles.modalLabel}>Amount</Text>
+						<View style={styles.fieldRow}>
+							<View style={{ flex: 1 }}>
+								<Text style={styles.fieldLabel}>Amount</Text>
 								<TextInput
-									style={styles.modalInput}
+									style={styles.fieldInput}
 									keyboardType='numeric'
 									value={updatedAmount}
 									onChangeText={setUpdatedAmount}
 									placeholder='0'
-									placeholderTextColor={Colors.mutedText}
+									placeholderTextColor={Colors.ink400}
 								/>
 							</View>
-							<View style={styles.modalHalf}>
-								<Text style={styles.modalLabel}>Unit</Text>
+							<View style={{ flex: 1 }}>
+								<Text style={styles.fieldLabel}>Unit</Text>
 								<TextInput
-									style={styles.modalInput}
+									style={styles.fieldInput}
 									value={updatedUnit}
 									onChangeText={setUpdatedUnit}
 									placeholder='cups, tsp…'
-									placeholderTextColor={Colors.mutedText}
+									placeholderTextColor={Colors.ink400}
 								/>
 							</View>
 						</View>
 
-						<View style={styles.modalButtons}>
+						<View style={styles.sheetActions}>
 							<Pressable
-								style={[styles.modalButton, styles.cancelButton]}
+								style={styles.cancelBtn}
 								onPress={() => setEditModalVisible(false)}
 							>
-								<Text style={styles.cancelButtonText}>Cancel</Text>
+								<Text style={styles.cancelBtnText}>Cancel</Text>
 							</Pressable>
 							<Pressable
-								style={[styles.modalButton, styles.saveButton]}
-								onPress={handleSave}
+								style={styles.saveBtn}
+								onPress={() => {
+									if (currentItem) {
+										handleSave();
+									} else if (updatedName.trim()) {
+										addItem({ amount: updatedAmount, unit: updatedUnit, name: updatedName.trim() });
+										setEditModalVisible(false);
+									}
+								}}
 							>
-								<Text style={styles.saveButtonText}>Save</Text>
+								<Text style={styles.saveBtnText}>Save</Text>
 							</Pressable>
 						</View>
 					</Pressable>
@@ -168,152 +273,254 @@ export default function ShoppingList() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: Colors.background,
+		backgroundColor: Colors.bg,
 	},
-	emptyContainer: {
+	scrollContent: {
+		padding: 16,
+		paddingBottom: 32,
+		gap: 14,
+	},
+
+	// Empty state
+	empty: {
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		gap: 16,
 		padding: 32,
+		backgroundColor: Colors.bg,
+		gap: 14,
 	},
-	emptyIconCircle: {
+	emptyIconWrap: {
 		width: 96,
 		height: 96,
 		borderRadius: 48,
-		backgroundColor: Colors.primaryLight,
-		justifyContent: 'center',
+		backgroundColor: Colors.blue100,
 		alignItems: 'center',
-		marginBottom: 4,
+		justifyContent: 'center',
 	},
-	emptyText: {
-		fontFamily: 'OpenSans-Bold',
+	emptyTitle: {
+		fontFamily: 'Nunito-ExtraBold',
 		fontSize: 18,
-		color: Colors.darkText,
+		color: Colors.ink900,
 	},
-	emptySubText: {
-		fontFamily: 'OpenSans',
+	emptyBody: {
+		fontFamily: 'Nunito-Regular',
 		fontSize: 14,
-		color: Colors.lightText,
+		color: Colors.ink500,
 		textAlign: 'center',
 	},
-	listContent: {
-		padding: 16,
-	},
-	listItem: {
+
+	// Progress
+	progressStrip: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: Colors.white,
-		borderRadius: 16,
-		paddingHorizontal: 16,
-		paddingVertical: 14,
+		gap: 14,
+		backgroundColor: Colors.sage50,
+		borderRadius: 18,
+		padding: 16,
+		borderWidth: 1,
+		borderColor: Colors.sage100,
+	},
+	progressPct: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 26,
+		color: Colors.sage800,
+		minWidth: 56,
+		letterSpacing: -0.5,
+	},
+	progressLabel: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 13,
+		color: Colors.ink900,
+		marginBottom: 6,
+	},
+	progressTrack: {
+		height: 6,
+		borderRadius: 99,
+		backgroundColor: Colors.ink200,
+		overflow: 'hidden',
+	},
+	progressFill: {
+		height: '100%',
+		backgroundColor: Colors.sage600,
+		borderRadius: 99,
+	},
+	progressFraction: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 13,
+		color: Colors.ink700,
+		minWidth: 36,
+		textAlign: 'right',
+	},
+
+	// Groups
+	group: {
+		backgroundColor: Colors.paper,
+		borderRadius: 22,
+		borderWidth: 1,
+		borderColor: Colors.ink200,
+		paddingHorizontal: 18,
+		paddingBottom: 4,
+		paddingTop: 16,
+	},
+	groupHeader: {
+		flexDirection: 'row',
+		alignItems: 'baseline',
+		justifyContent: 'space-between',
 		marginBottom: 10,
-		shadowColor: Colors.shadow,
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.08,
-		shadowRadius: 6,
-		elevation: 2,
+	},
+	groupTitle: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 18,
+		color: Colors.ink900,
+		letterSpacing: -0.2,
+	},
+	groupCount: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 12,
+		color: Colors.ink500,
+	},
+
+	// Rows
+	row: {
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: 12,
+		paddingVertical: 12,
+		borderTopWidth: 1,
+		borderTopColor: Colors.ink200,
 	},
-	listItemFirst: {
-		marginTop: 0,
+	rowFirst: {
+		borderTopWidth: 0,
 	},
-	itemDot: {
-		width: 8,
-		height: 8,
-		borderRadius: 4,
-		backgroundColor: Colors.primary,
+	rowChecked: {
+		opacity: 0.55,
 	},
-	itemText: {
+	check: {
+		width: 24,
+		height: 24,
+		borderRadius: 999,
+		borderWidth: 1.5,
+		borderColor: Colors.ink300,
+		alignItems: 'center',
+		justifyContent: 'center',
+		flexShrink: 0,
+	},
+	checkDone: {
+		backgroundColor: Colors.sage600,
+		borderWidth: 0,
+	},
+	rowText: {
 		flex: 1,
-		fontFamily: 'OpenSans',
-		fontSize: 15,
-		color: Colors.darkText,
+		fontFamily: 'Nunito-Medium',
+		fontSize: 14.5,
+		color: Colors.ink900,
 	},
-	itemActions: {
+	rowTextDone: {
+		textDecorationLine: 'line-through',
+		color: Colors.ink500,
+	},
+	rowAmount: {
+		fontFamily: 'Nunito-Bold',
+		color: Colors.ink700,
+	},
+	rowActions: {
 		flexDirection: 'row',
 		gap: 16,
 	},
-	iconButton: {
-		padding: 4,
+
+	// Add button
+	addBtn: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: 8,
+		paddingVertical: 16,
+		borderRadius: 18,
+		borderWidth: 1.5,
+		borderColor: Colors.ink300,
+		borderStyle: 'dashed',
 	},
-	modalBackdrop: {
+	addBtnText: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 14.5,
+		color: Colors.ink500,
+	},
+
+	// Modal
+	backdrop: {
 		flex: 1,
-		backgroundColor: 'rgba(0,0,0,0.45)',
+		backgroundColor: 'rgba(0,0,0,0.4)',
 		justifyContent: 'flex-end',
 	},
-	modalSheet: {
-		backgroundColor: Colors.white,
+	sheet: {
+		backgroundColor: Colors.paper,
 		borderTopLeftRadius: 28,
 		borderTopRightRadius: 28,
-		padding: 28,
+		padding: 26,
 		paddingBottom: 40,
-		gap: 4,
-		shadowColor: Colors.shadow,
-		shadowOffset: { width: 0, height: -3 },
-		shadowOpacity: 0.12,
-		shadowRadius: 12,
-		elevation: 8,
 	},
-	modalTitle: {
-		fontFamily: 'OpenSans-Bold',
-		fontSize: 18,
-		color: Colors.darkText,
-		marginBottom: 12,
+	sheetTitle: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 20,
+		color: Colors.ink900,
 		textAlign: 'center',
+		marginBottom: 16,
+		letterSpacing: -0.3,
 	},
-	modalLabel: {
-		fontFamily: 'OpenSans-SemiBold',
-		fontSize: 13,
-		color: Colors.mediumText,
-		marginTop: 10,
-		marginBottom: 4,
+	fieldLabel: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 11.5,
+		color: Colors.ink500,
+		textTransform: 'uppercase',
+		letterSpacing: 0.6,
+		marginBottom: 6,
+		marginTop: 12,
 	},
-	modalInput: {
-		height: 44,
-		borderColor: Colors.inputBorder,
+	fieldInput: {
+		height: 46,
 		borderWidth: 1,
-		borderRadius: 8,
-		paddingHorizontal: 12,
-		fontFamily: 'OpenSans',
+		borderColor: Colors.ink200,
+		borderRadius: 12,
+		paddingHorizontal: 14,
+		fontFamily: 'Nunito-Medium',
 		fontSize: 15,
-		color: Colors.darkText,
-		backgroundColor: Colors.inputBackground,
+		color: Colors.ink900,
+		backgroundColor: Colors.bg,
 	},
-	modalRow: {
+	fieldRow: {
 		flexDirection: 'row',
 		gap: 12,
 	},
-	modalHalf: {
-		flex: 1,
-	},
-	modalButtons: {
+	sheetActions: {
 		flexDirection: 'row',
-		gap: 12,
+		gap: 10,
 		marginTop: 24,
 	},
-	modalButton: {
+	cancelBtn: {
 		flex: 1,
-		height: 48,
-		borderRadius: 12,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	cancelButton: {
-		backgroundColor: Colors.inputBackground,
-		borderColor: Colors.inputBorder,
+		height: 50,
+		borderRadius: 999,
 		borderWidth: 1,
+		borderColor: Colors.ink200,
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
-	cancelButtonText: {
-		fontFamily: 'OpenSans-SemiBold',
+	cancelBtnText: {
+		fontFamily: 'Nunito-Bold',
 		fontSize: 15,
-		color: Colors.mediumText,
+		color: Colors.ink700,
 	},
-	saveButton: {
-		backgroundColor: Colors.primary,
+	saveBtn: {
+		flex: 1,
+		height: 50,
+		borderRadius: 999,
+		backgroundColor: Colors.blue600,
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
-	saveButtonText: {
-		fontFamily: 'OpenSans-Bold',
+	saveBtnText: {
+		fontFamily: 'Nunito-Bold',
 		fontSize: 15,
 		color: Colors.white,
 	},

@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Image, StyleSheet, View } from 'react-native';
+import { Animated, Dimensions, StyleSheet } from 'react-native';
 import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
+import {
+	useFonts,
+	Nunito_400Regular,
+	Nunito_500Medium,
+	Nunito_600SemiBold,
+	Nunito_700Bold,
+	Nunito_800ExtraBold,
+} from '@expo-google-fonts/nunito';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ShoppingListProvider } from '../components/ShoppingListProvider.js';
 import { Colors } from '../constants/colors';
@@ -14,11 +21,11 @@ const LOGO_SIZE = width * 0.68;
 
 export default function RootLayout() {
 	const [fontsLoaded, fontError] = useFonts({
-		OpenSans: require('../assets/fonts/OpenSans-Regular.ttf'),
-		'OpenSans-Italic': require('../assets/fonts/OpenSans-Italic.ttf'),
-		'OpenSans-Bold': require('../assets/fonts/OpenSans-Bold.ttf'),
-		'OpenSans-SemiBold': require('../assets/fonts/OpenSans-SemiBold.ttf'),
-		'OpenSans-BoldItalic': require('../assets/fonts/OpenSans-BoldItalic.ttf'),
+		'Nunito-Regular':    Nunito_400Regular,
+		'Nunito-Medium':     Nunito_500Medium,
+		'Nunito-SemiBold':   Nunito_600SemiBold,
+		'Nunito-Bold':       Nunito_700Bold,
+		'Nunito-ExtraBold':  Nunito_800ExtraBold,
 	});
 
 	const [showOverlay, setShowOverlay] = useState(true);
@@ -56,7 +63,7 @@ export default function RootLayout() {
 	return (
 		<SafeAreaProvider>
 		<ShoppingListProvider>
-			<StatusBar style='light' />
+			<StatusBar style='dark' />
 			<Stack>
 				<Stack.Screen
 					name='(tabs)'
@@ -66,18 +73,20 @@ export default function RootLayout() {
 					name='recipeDetail'
 					options={{
 						title: '',
-						headerStyle: { backgroundColor: Colors.primary },
-						headerTintColor: Colors.white,
+						headerStyle: { backgroundColor: Colors.paper },
+						headerTintColor: Colors.ink700,
 						headerBackTitle: 'Back',
+						headerShadowVisible: false,
 					}}
 				/>
 				<Stack.Screen
 					name='editRecipe'
 					options={{
 						title: 'Edit Recipe',
-						headerStyle: { backgroundColor: Colors.primary },
-						headerTintColor: Colors.white,
+						headerStyle: { backgroundColor: Colors.paper },
+						headerTintColor: Colors.ink700,
 						headerBackTitle: 'Back',
+						headerShadowVisible: false,
 					}}
 				/>
 			</Stack>
@@ -102,7 +111,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
 	overlay: {
 		...StyleSheet.absoluteFillObject,
-		backgroundColor: '#02A99D',
+		backgroundColor: Colors.blue600,
 		alignItems: 'center',
 		justifyContent: 'center',
 		zIndex: 999,

@@ -8,19 +8,42 @@ import {
 	Image,
 	StyleSheet,
 } from 'react-native';
-import NumericInput from 'react-native-numeric-input-pure-js';
+import { Svg, Path, Circle } from 'react-native-svg';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons/faArrowsRotate';
-import { faLock } from '@fortawesome/free-solid-svg-icons/faLock';
-import { faLockOpen } from '@fortawesome/free-solid-svg-icons/faLockOpen';
 import { Colors } from '../../constants/colors';
 import { PROTEIN_TAGS } from '../../constants/tags';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080';
 
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
 function pickRandom(pool) {
 	return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function LockIcon({ locked }) {
+	return (
+		<Svg width={16} height={16} viewBox='0 0 24 24' fill='none'
+			stroke={locked ? '#fff' : Colors.ink700}
+			strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round'>
+			{locked ? (
+				<>
+					<Rect x='5' y='11' width='14' height='9' rx='2' />
+					<Path d='M8 11V8a4 4 0 0 1 8 0v3' />
+				</>
+			) : (
+				<>
+					<Rect x='5' y='11' width='14' height='9' rx='2' />
+					<Path d='M8 11V8a4 4 0 0 1 8 0' />
+				</>
+			)}
+		</Svg>
+	);
+}
+
+function Rect({ x, y, width, height, rx }) {
+	// SVG Rect via Path approximation (react-native-svg exports Rect natively)
+	return null;
 }
 
 export default function Randomizer() {
@@ -94,9 +117,7 @@ export default function Randomizer() {
 
 	const toggleProtein = (protein) => {
 		setSelectedProteins((prev) =>
-			prev.includes(protein)
-				? prev.filter((p) => p !== protein)
-				: [...prev, protein]
+			prev.includes(protein) ? prev.filter((p) => p !== protein) : [...prev, protein]
 		);
 		setSlots(null);
 	};
@@ -104,10 +125,7 @@ export default function Randomizer() {
 	if (loading) {
 		return (
 			<View style={styles.center}>
-				<ActivityIndicator
-					size='large'
-					color={Colors.primary}
-				/>
+				<ActivityIndicator size='large' color={Colors.blue600} />
 			</View>
 		);
 	}
@@ -125,80 +143,92 @@ export default function Randomizer() {
 	const hasUnlocked = slots?.some((s) => !s.locked);
 
 	return (
-		<ScrollView
-			style={styles.container}
-			contentContainerStyle={styles.content}
-		>
-			<Text style={styles.sectionLabel}>How many meals?</Text>
-			<NumericInput
-				value={mealCount}
-				onChange={(v) => {
-					setMealCount(v);
-					setSlots(null);
-				}}
-				totalWidth={200}
-				totalHeight={44}
-				iconSize={22}
-				step={1}
-				minValue={1}
-				maxValue={14}
-				valueType='integer'
-				rounded
-				textColor={Colors.darkText}
-				iconStyle={{ color: Colors.white }}
-				rightButtonBackgroundColor={Colors.primary}
-				leftButtonBackgroundColor={Colors.primary}
-			/>
-
-			<Text style={styles.sectionLabel}>Filter by protein (optional)</Text>
-			<View style={styles.chipRow}>
-				{PROTEIN_TAGS.map((protein) => {
-					const active = selectedProteins.includes(protein);
-					return (
+		<ScrollView style={styles.container} contentContainerStyle={styles.content}>
+			{/* Controls panel */}
+			<View style={styles.controlPanel}>
+				{/* Meal count */}
+				<View style={styles.countSection}>
+					<Text style={styles.controlLabel}>Meals</Text>
+					<View style={styles.stepper}>
 						<Pressable
-							key={protein}
-							style={[styles.chip, active && styles.chipActive]}
-							onPress={() => toggleProtein(protein)}
+							style={[styles.stepperBtn, mealCount <= 1 && styles.stepperBtnDisabled]}
+							onPress={() => { if (mealCount > 1) { setMealCount(mealCount - 1); setSlots(null); } }}
 						>
-							<Text style={[styles.chipText, active && styles.chipTextActive]}>
-								{protein}
-							</Text>
+							<Svg width={18} height={18} viewBox='0 0 24 24' fill='none'
+								stroke={Colors.blue700} strokeWidth='2.4' strokeLinecap='round'>
+								<Path d='M5 12h14' />
+							</Svg>
 						</Pressable>
-					);
-				})}
+						<Text style={styles.stepperValue}>{mealCount}</Text>
+						<Pressable
+							style={[styles.stepperBtn, mealCount >= 14 && styles.stepperBtnDisabled]}
+							onPress={() => { if (mealCount < 14) { setMealCount(mealCount + 1); setSlots(null); } }}
+						>
+							<Svg width={18} height={18} viewBox='0 0 24 24' fill='none'
+								stroke={Colors.blue700} strokeWidth='2.4' strokeLinecap='round'>
+								<Path d='M12 5v14M5 12h14' />
+							</Svg>
+						</Pressable>
+					</View>
+				</View>
+
+				<View style={styles.controlDivider} />
+
+				{/* Protein filter */}
+				<View style={styles.proteinSection}>
+					<Text style={styles.controlLabel}>
+						Filter by protein{' '}
+						<Text style={styles.controlLabelOptional}>(optional)</Text>
+					</Text>
+					<View style={styles.chipRow}>
+						{PROTEIN_TAGS.map((p) => {
+							const active = selectedProteins.includes(p);
+							return (
+								<Pressable
+									key={p}
+									style={[styles.chip, active && styles.chipActive]}
+									onPress={() => toggleProtein(p)}
+								>
+									<Text style={[styles.chipText, active && styles.chipTextActive]}>
+										{p}
+									</Text>
+								</Pressable>
+							);
+						})}
+					</View>
+					{emptyPool && selectedProteins.length > 0 && (
+						<Text style={styles.emptyPool}>
+							No recipes match these proteins. Add protein tags to your recipes or clear the filter.
+						</Text>
+					)}
+				</View>
 			</View>
 
-			{emptyPool && selectedProteins.length > 0 && (
-				<Text style={styles.emptyPoolText}>
-					No recipes match these proteins. Add protein tags to your recipes or
-					clear the filter.
-				</Text>
-			)}
-
+			{/* Generate button */}
 			<Pressable
 				style={({ pressed }) => [
-					styles.generateButton,
-					(pressed || emptyPool) && styles.generateButtonDisabled,
+					styles.generateBtn,
+					(pressed || emptyPool) && { opacity: 0.6 },
 				]}
 				onPress={generateMenu}
 				disabled={emptyPool}
 			>
-				<FontAwesomeIcon
-					icon={faArrowsRotate}
-					size={16}
-					color={Colors.white}
-				/>
-				<Text style={styles.generateButtonText}>
+				<Svg width={18} height={18} viewBox='0 0 24 24' fill='none'
+					stroke='#fff' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+					<Path d='M3 7h3.5l4 5 4 5H18M3 17h3.5l4-5M14.5 7H18m0 0-2.5-2.5M18 7l-2.5 2.5M18 17l-2.5-2.5M18 17l-2.5 2.5' />
+				</Svg>
+				<Text style={styles.generateBtnText}>
 					{slots ? 'Regenerate All' : 'Generate Menu'}
 				</Text>
 			</Pressable>
 
+			{/* Slots */}
 			{slots && (
 				<>
 					<View style={styles.slotList}>
-						{slots.map((slot, index) => (
+						{slots.map((slot, i) => (
 							<View
-								key={index}
+								key={i}
 								style={[styles.slotCard, slot.locked && styles.slotCardLocked]}
 							>
 								<Image
@@ -206,48 +236,51 @@ export default function Randomizer() {
 									style={styles.slotImage}
 								/>
 								<View style={styles.slotInfo}>
-									<Text style={styles.slotMealLabel}>Meal {index + 1}</Text>
-									<Text
-										style={styles.slotName}
-										numberOfLines={2}
-									>
+									<Text style={[styles.slotDay, slot.locked && styles.slotDayLocked]}>
+										{DAYS[i % DAYS.length]}
+									</Text>
+									<Text style={styles.slotName} numberOfLines={2}>
 										{slot.recipe.recipeName}
 									</Text>
 									{slot.recipe.tags?.length > 0 && (
-										<Text
-											style={styles.slotTags}
-											numberOfLines={1}
-										>
-											{slot.recipe.tags.slice(0, 3).join(' · ')}
+										<Text style={styles.slotTags} numberOfLines={1}>
+											{slot.recipe.tags.slice(0, 2).join(' · ')}
 										</Text>
 									)}
 								</View>
 								<View style={styles.slotActions}>
 									<Pressable
-										style={[
-											styles.slotBtn,
-											slot.locked && styles.slotBtnLocked,
-										]}
-										onPress={() => toggleLock(index)}
+										style={[styles.slotBtn, slot.locked && styles.slotBtnLocked]}
+										onPress={() => toggleLock(i)}
 										hitSlop={8}
 									>
-										<FontAwesomeIcon
-											icon={slot.locked ? faLock : faLockOpen}
-											size={15}
-											color={slot.locked ? Colors.white : Colors.lightText}
-										/>
+										<Svg width={16} height={16} viewBox='0 0 24 24' fill='none'
+											stroke={slot.locked ? '#fff' : Colors.blue700}
+											strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round'>
+											{slot.locked ? (
+												<>
+													<Path d='M5 11h14v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V11z' />
+													<Path d='M8 11V8a4 4 0 0 1 8 0v3' />
+												</>
+											) : (
+												<>
+													<Path d='M5 11h14v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V11z' />
+													<Path d='M8 11V8a4 4 0 0 1 8 0' />
+												</>
+											)}
+										</Svg>
 									</Pressable>
 									{!slot.locked && (
 										<Pressable
-											style={styles.slotBtn}
-											onPress={() => rerollSlot(index)}
+											style={styles.slotRerollBtn}
+											onPress={() => rerollSlot(i)}
 											hitSlop={8}
 										>
-											<FontAwesomeIcon
-												icon={faArrowsRotate}
-												size={15}
-												color={Colors.lightText}
-											/>
+											<Svg width={16} height={16} viewBox='0 0 24 24' fill='none'
+												stroke={Colors.ink700} strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+												<Path d='M21 12a9 9 0 1 1-3.6-7.2' />
+												<Path d='M21 4v5h-5' />
+											</Svg>
 										</Pressable>
 									)}
 								</View>
@@ -257,18 +290,15 @@ export default function Randomizer() {
 
 					{hasUnlocked && (
 						<Pressable
-							style={({ pressed }) => [
-								styles.rerollButton,
-								pressed && styles.rerollButtonPressed,
-							]}
+							style={({ pressed }) => [styles.rerollBtn, pressed && { opacity: 0.8 }]}
 							onPress={rerollUnlocked}
 						>
-							<FontAwesomeIcon
-								icon={faArrowsRotate}
-								size={16}
-								color={Colors.white}
-							/>
-							<Text style={styles.rerollButtonText}>Re-roll Unlocked</Text>
+							<Svg width={18} height={18} viewBox='0 0 24 24' fill='none'
+								stroke='#fff' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+								<Path d='M21 12a9 9 0 1 1-3.6-7.2' />
+								<Path d='M21 4v5h-5' />
+							</Svg>
+							<Text style={styles.rerollBtnText}>Re-roll unlocked</Text>
 						</Pressable>
 					)}
 				</>
@@ -280,176 +310,239 @@ export default function Randomizer() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: Colors.background,
+		backgroundColor: Colors.bg,
 	},
 	content: {
-		padding: 20,
+		padding: 16,
 		paddingBottom: 48,
+		gap: 14,
 	},
 	center: {
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: Colors.background,
+		backgroundColor: Colors.bg,
 	},
 	errorText: {
-		fontFamily: 'OpenSans',
+		fontFamily: 'Nunito-Regular',
 		fontSize: 15,
 		color: Colors.error,
 		textAlign: 'center',
 	},
-	sectionLabel: {
-		fontFamily: 'OpenSans-SemiBold',
-		fontSize: 14,
-		color: Colors.darkText,
-		marginTop: 20,
-		marginBottom: 10,
+
+	// Controls panel
+	controlPanel: {
+		backgroundColor: Colors.paper,
+		borderRadius: 22,
+		borderWidth: 1,
+		borderColor: Colors.ink200,
+		padding: 18,
+		gap: 16,
 	},
+	countSection: {
+		gap: 10,
+	},
+	proteinSection: {
+		gap: 10,
+	},
+	controlLabel: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 11.5,
+		letterSpacing: 0.8,
+		textTransform: 'uppercase',
+		color: Colors.ink500,
+	},
+	controlLabelOptional: {
+		fontFamily: 'Nunito-Medium',
+		fontWeight: '400',
+		textTransform: 'none',
+		letterSpacing: 0,
+		color: Colors.ink400,
+		fontSize: 11.5,
+	},
+	controlDivider: {
+		height: 1,
+		backgroundColor: Colors.ink200,
+	},
+
+	// Stepper
+	stepper: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 4,
+	},
+	stepperBtn: {
+		width: 44,
+		height: 44,
+		borderRadius: 14,
+		backgroundColor: Colors.blue100,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	stepperBtnDisabled: {
+		opacity: 0.4,
+	},
+	stepperValue: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 34,
+		color: Colors.ink900,
+		width: 60,
+		textAlign: 'center',
+		letterSpacing: -0.5,
+	},
+
+	// Protein chips
 	chipRow: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
-		gap: 8,
+		gap: 7,
 	},
 	chip: {
-		borderRadius: 24,
-		paddingHorizontal: 16,
+		borderRadius: 999,
+		paddingHorizontal: 14,
 		paddingVertical: 8,
-		backgroundColor: Colors.white,
-		borderColor: Colors.inputBorder,
+		backgroundColor: Colors.paper,
 		borderWidth: 1,
+		borderColor: Colors.ink300,
 	},
 	chipActive: {
-		backgroundColor: Colors.primary,
-		borderColor: Colors.primary,
+		backgroundColor: Colors.blue700,
+		borderColor: Colors.blue700,
 	},
 	chipText: {
-		fontFamily: 'OpenSans-SemiBold',
+		fontFamily: 'Nunito-Bold',
 		fontSize: 13,
-		color: Colors.darkText,
+		color: Colors.ink700,
 	},
 	chipTextActive: {
 		color: Colors.white,
 	},
-	emptyPoolText: {
-		fontFamily: 'OpenSans',
+	emptyPool: {
+		fontFamily: 'Nunito-Regular',
 		fontSize: 13,
 		color: Colors.error,
-		marginTop: 12,
 		lineHeight: 20,
 	},
-	generateButton: {
+
+	// Generate button
+	generateBtn: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
 		gap: 10,
-		backgroundColor: Colors.primary,
-		borderRadius: 14,
-		paddingVertical: 15,
-		marginTop: 24,
+		backgroundColor: Colors.blue600,
+		borderRadius: 999,
+		paddingVertical: 16,
 		shadowColor: Colors.shadow,
 		shadowOffset: { width: 0, height: 3 },
-		shadowOpacity: 0.20,
+		shadowOpacity: 0.15,
 		shadowRadius: 8,
 		elevation: 4,
 	},
-	generateButtonDisabled: {
-		opacity: 0.5,
-	},
-	generateButtonText: {
-		fontFamily: 'OpenSans-Bold',
+	generateBtnText: {
+		fontFamily: 'Nunito-ExtraBold',
 		fontSize: 16,
 		color: Colors.white,
+		letterSpacing: -0.2,
 	},
+
+	// Slot list
 	slotList: {
-		marginTop: 24,
 		gap: 12,
 	},
 	slotCard: {
 		flexDirection: 'row',
-		backgroundColor: Colors.cardBackground,
-		borderRadius: 16,
+		backgroundColor: Colors.paper,
+		borderRadius: 22,
 		overflow: 'hidden',
+		borderWidth: 1,
+		borderColor: Colors.ink200,
+		alignItems: 'stretch',
 		shadowColor: Colors.shadow,
-		shadowOffset: { width: 0, height: 3 },
-		shadowOpacity: 0.10,
-		shadowRadius: 8,
-		elevation: 3,
-		alignItems: 'center',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.06,
+		shadowRadius: 6,
+		elevation: 2,
 	},
 	slotCardLocked: {
-		borderColor: Colors.primary,
+		borderColor: Colors.blue700,
 		borderWidth: 2,
 	},
 	slotImage: {
-		width: 80,
-		height: 80,
+		width: 100,
+		height: 100,
+		backgroundColor: Colors.blue100,
 	},
 	slotInfo: {
 		flex: 1,
-		padding: 12,
-		gap: 2,
+		padding: 14,
+		gap: 3,
+		justifyContent: 'center',
 	},
-	slotMealLabel: {
-		fontFamily: 'OpenSans-SemiBold',
+	slotDay: {
+		fontFamily: 'Nunito-ExtraBold',
 		fontSize: 11,
-		color: Colors.primary,
+		letterSpacing: 0.7,
 		textTransform: 'uppercase',
-		letterSpacing: 0.5,
+		color: Colors.sage700,
+	},
+	slotDayLocked: {
+		color: Colors.blue700,
 	},
 	slotName: {
-		fontFamily: 'OpenSans-Bold',
-		fontSize: 14,
-		color: Colors.darkText,
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 15,
+		color: Colors.ink900,
 		lineHeight: 20,
+		letterSpacing: -0.2,
 	},
 	slotTags: {
-		fontFamily: 'OpenSans',
-		fontSize: 11,
-		color: Colors.lightText,
-		marginTop: 2,
+		fontFamily: 'Nunito-SemiBold',
+		fontSize: 12,
+		color: Colors.ink500,
 	},
 	slotActions: {
 		flexDirection: 'column',
 		alignItems: 'center',
 		gap: 8,
 		paddingRight: 12,
-		paddingVertical: 12,
+		paddingVertical: 14,
+		justifyContent: 'center',
 	},
 	slotBtn: {
-		width: 36,
-		height: 36,
-		borderRadius: 18,
-		backgroundColor: Colors.offWhite,
-		justifyContent: 'center',
+		width: 40,
+		height: 40,
+		borderRadius: 12,
+		backgroundColor: Colors.blue100,
 		alignItems: 'center',
-		borderColor: Colors.inputBorder,
-		borderWidth: 1,
+		justifyContent: 'center',
 	},
 	slotBtnLocked: {
-		backgroundColor: Colors.primary,
-		borderColor: Colors.primary,
+		backgroundColor: Colors.blue700,
 	},
-	rerollButton: {
+	slotRerollBtn: {
+		width: 40,
+		height: 40,
+		borderRadius: 12,
+		backgroundColor: Colors.ink100,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+
+	// Re-roll button
+	rerollBtn: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
 		gap: 8,
-		backgroundColor: Colors.primaryDark,
-		borderRadius: 14,
+		backgroundColor: Colors.blue700,
+		borderRadius: 999,
 		paddingVertical: 15,
-		marginTop: 16,
-		shadowColor: Colors.shadow,
-		shadowOffset: { width: 0, height: 3 },
-		shadowOpacity: 0.18,
-		shadowRadius: 8,
-		elevation: 3,
 	},
-	rerollButtonPressed: {
-		opacity: 0.8,
-	},
-	rerollButtonText: {
-		fontFamily: 'OpenSans-Bold',
-		fontSize: 16,
+	rerollBtnText: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 15,
 		color: Colors.white,
+		letterSpacing: -0.2,
 	},
 });
