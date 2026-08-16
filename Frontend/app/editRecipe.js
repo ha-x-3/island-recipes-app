@@ -128,11 +128,13 @@ export default function EditRecipe() {
 					type: 'image/jpeg',
 				});
 				formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-				const cloudinaryResponse = await axios.post(
+				const cloudinaryResponse = await fetch(
 					`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-					formData
+					{ method: 'POST', body: formData }
 				);
-				imageUrl = cloudinaryResponse.data.secure_url;
+				const cloudinaryData = await cloudinaryResponse.json();
+				if (!cloudinaryData.secure_url) throw new Error('Cloudinary upload failed');
+				imageUrl = cloudinaryData.secure_url;
 			}
 
 			const nutritionalData = await fetchNutrition(values.ingredients);
