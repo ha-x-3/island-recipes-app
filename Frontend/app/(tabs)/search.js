@@ -87,6 +87,11 @@ export default function Search() {
 
 	return (
 		<View style={styles.container}>
+			{/* Page header */}
+			<Text style={styles.eyebrow}>Find a recipe</Text>
+			<Text style={styles.pageTitle}>Search</Text>
+			<Text style={styles.pageSubtitle}>By recipe name, ingredient, or tag</Text>
+
 			{/* Search bar */}
 			<View style={styles.searchBar}>
 				<Svg width={20} height={20} viewBox='0 0 24 24' fill='none'
@@ -167,7 +172,28 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: Colors.bg,
 		paddingHorizontal: 16,
-		paddingTop: 16,
+		paddingTop: 20,
+	},
+	eyebrow: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 11,
+		letterSpacing: 1.1,
+		textTransform: 'uppercase',
+		color: Colors.blue700,
+		marginBottom: 2,
+	},
+	pageTitle: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 34,
+		color: Colors.ink900,
+		letterSpacing: -0.8,
+		marginBottom: 2,
+	},
+	pageSubtitle: {
+		fontFamily: 'Nunito-Medium',
+		fontSize: 14,
+		color: Colors.ink500,
+		marginBottom: 16,
 	},
 
 	// Search bar

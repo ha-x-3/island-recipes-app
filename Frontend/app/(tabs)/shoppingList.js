@@ -75,6 +75,11 @@ export default function ShoppingList() {
 		return Object.entries(map);
 	}, [shoppingList]);
 
+	const markAllDone = () => {
+		const allKeys = new Set(shoppingList.map((_, idx) => idx));
+		setChecked(allKeys);
+	};
+
 	if (total === 0) {
 		return (
 			<View style={styles.empty}>
@@ -96,6 +101,26 @@ export default function ShoppingList() {
 
 	return (
 		<View style={styles.container}>
+			{/* Page header */}
+			<View style={styles.pageHeader}>
+				<View>
+					<Text style={styles.eyebrow}>Shopping</Text>
+					<Text style={styles.pageTitle}>Your cart</Text>
+				</View>
+				<View style={styles.headerActions}>
+					<Pressable
+						style={styles.actionBtn}
+						onPress={markAllDone}
+					>
+						<Svg width={14} height={14} viewBox='0 0 24 24' fill='none'
+							stroke={Colors.sage700} strokeWidth='2.4' strokeLinecap='round' strokeLinejoin='round'>
+							<Path d='m4 12 5 5L20 6' />
+						</Svg>
+						<Text style={styles.actionBtnText}>Mark all done</Text>
+					</Pressable>
+				</View>
+			</View>
+
 			<ScrollView contentContainerStyle={styles.scrollContent}>
 				{/* Progress strip */}
 				{total > 0 && (
@@ -275,8 +300,53 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: Colors.bg,
 	},
+	pageHeader: {
+		flexDirection: 'row',
+		alignItems: 'flex-end',
+		justifyContent: 'space-between',
+		paddingHorizontal: 20,
+		paddingTop: 20,
+		paddingBottom: 16,
+		backgroundColor: Colors.bg,
+	},
+	eyebrow: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 11,
+		letterSpacing: 1.1,
+		textTransform: 'uppercase',
+		color: Colors.blue700,
+		marginBottom: 2,
+	},
+	pageTitle: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 34,
+		color: Colors.ink900,
+		letterSpacing: -0.8,
+	},
+	headerActions: {
+		flexDirection: 'row',
+		gap: 8,
+		alignItems: 'center',
+		paddingBottom: 4,
+	},
+	actionBtn: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 6,
+		paddingHorizontal: 12,
+		paddingVertical: 8,
+		borderRadius: 999,
+		backgroundColor: Colors.sage50,
+		borderWidth: 1,
+		borderColor: Colors.sage100,
+	},
+	actionBtnText: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 12.5,
+		color: Colors.sage700,
+	},
 	scrollContent: {
-		padding: 16,
+		paddingHorizontal: 16,
 		paddingBottom: 32,
 		gap: 14,
 	},

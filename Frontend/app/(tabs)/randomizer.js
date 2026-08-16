@@ -144,6 +144,23 @@ export default function Randomizer() {
 
 	return (
 		<ScrollView style={styles.container} contentContainerStyle={styles.content}>
+			{/* Page header */}
+			<View style={styles.pageHeader}>
+				<View>
+					<Text style={styles.eyebrow}>Plan the week</Text>
+					<Text style={styles.pageTitle}>Menu randomizer</Text>
+				</View>
+				{slots && hasUnlocked && (
+					<Pressable style={styles.rerollBtn} onPress={rerollUnlocked}>
+						<Svg width={14} height={14} viewBox='0 0 24 24' fill='none'
+							stroke={Colors.blue700} strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round'>
+							<Path d='M3 7h3.5l4 5 4 5H18M3 17h3.5l4-5M14.5 7H18m0 0-2.5-2.5M18 7l-2.5 2.5M18 17l-2.5-2.5M18 17l-2.5 2.5' />
+						</Svg>
+						<Text style={styles.rerollBtnText}>Re-roll unlocked</Text>
+					</Pressable>
+				)}
+			</View>
+
 			{/* Controls panel */}
 			<View style={styles.controlPanel}>
 				{/* Meal count */}
@@ -316,6 +333,44 @@ const styles = StyleSheet.create({
 		padding: 16,
 		paddingBottom: 48,
 		gap: 14,
+		paddingTop: 20,
+	},
+	pageHeader: {
+		flexDirection: 'row',
+		alignItems: 'flex-end',
+		justifyContent: 'space-between',
+		marginBottom: 4,
+	},
+	eyebrow: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 11,
+		letterSpacing: 1.1,
+		textTransform: 'uppercase',
+		color: Colors.blue700,
+		marginBottom: 2,
+	},
+	pageTitle: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 30,
+		color: Colors.ink900,
+		letterSpacing: -0.7,
+	},
+	rerollBtn: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 6,
+		paddingHorizontal: 12,
+		paddingVertical: 8,
+		borderRadius: 999,
+		backgroundColor: Colors.blue50,
+		borderWidth: 1,
+		borderColor: Colors.blue300,
+		marginBottom: 4,
+	},
+	rerollBtnText: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 12.5,
+		color: Colors.blue700,
 	},
 	center: {
 		flex: 1,

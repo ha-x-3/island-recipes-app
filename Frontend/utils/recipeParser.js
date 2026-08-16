@@ -18,11 +18,14 @@ const UNIT_PATTERN = [
 	'stalks?', 'links?', 'fillets?', 'strips?',
 ].join('|');
 
-const NUM_CHARS = '[\\d½¼¾⅓⅔⅛⅜⅝⅞\\/\\.\\s]';
+// No spaces here — spaces in mixed numbers like "1 1/2" are handled by parseFraction
+const NUM_CHARS = '[\\d½¼¾⅓⅔⅛⅜⅝⅞\\/\\.]';
+
+// Containers that commonly appear after a size descriptor ("1 28 oz. can")
+const CONTAINER_RE = /^(cans?|packages?|pkg|jars?|bags?|boxes?|bottles?|bunches?|pouches?)$/i;
 
 const SECTION_RE = /^(ingredients?|instructions?|directions?|method|preparation|steps?|notes?|for the\b)/i;
 
-// Verbs that signal we've crossed into instructions territory
 const VERB_RE = /^(preheat|combine|mix|stir|add|heat|cook|bake|boil|simmer|chop|dice|slice|pour|place|set|bring|remove|let|allow|season|serve|transfer|spread|whisk|beat|fold|drain|rinse|crush|mince|grate|shred|coat|cover|refrigerate|freeze|toast|roast|sauté|saute|fry|grill)/i;
 
 function cleanLine(line) {
@@ -65,9 +68,30 @@ function parseIngredientLine(line, inSection) {
 	line = cleanLine(line);
 	if (!line || line.length < 2) return null;
 
+	// Pattern 0: count + size-spec + container  ("1 28 oz. can of petite diced tomatoes")
+	// Handles the case where a size descriptor precedes the actual container unit.
+	const sizeUnitRe = /oz\.?|ounces?|g|grams?|ml|milliliters?|lbs?|pounds?/i;
+	const countSizeContainer = line.match(
+		new RegExp(
+			`^(\\d+)\\s+(${NUM_CHARS}+)\\s*(${sizeUnitRe.source})\\.?\\s*(cans?|packages?|pkg|jars?|bags?|boxes?|bottles?|bunches?|pouches?)\\s+(?:of\\s+)?(.+)$`,
+			'i'
+		)
+	);
+	if (countSizeContainer) {
+		const sizeLabel = `${countSizeContainer[2].trim()} ${countSizeContainer[3].replace(/\.$/, '')}`;
+		const rawName = countSizeContainer[5].replace(/\s*[,;(].*$/, '').trim();
+		if (rawName) {
+			return {
+				amount: parseInt(countSizeContainer[1]),
+				unit: countSizeContainer[4].toLowerCase(),
+				name: `${sizeLabel} ${rawName}`,
+			};
+		}
+	}
+
 	// Pattern A: number + unit + name  ("2 cups flour", "1½ tsp salt")
 	const withUnit = line.match(
-		new RegExp(`^(${NUM_CHARS}+?)\\s+(${UNIT_PATTERN})\\.?[\\s,]+(.*?)\\s*$`, 'i')
+		new RegExp(`^(${NUM_CHARS}+(?:\\s+\\d+\\s*\\/\\s*\\d+)?)\\s+(${UNIT_PATTERN})\\.?[\\s,]+(.*?)\\s*$`, 'i')
 	);
 	if (withUnit) {
 		const name = withUnit[3].replace(/\s*[,;(].*$/, '').trim();
@@ -77,7 +101,7 @@ function parseIngredientLine(line, inSection) {
 	}
 
 	// Pattern B: number + name, no unit  ("2 eggs", "3 large onions", "4 chicken thighs")
-	const noUnit = line.match(new RegExp(`^(${NUM_CHARS}+?)\\s+(?!${UNIT_PATTERN}\\b)(.+)$`, 'i'));
+	const noUnit = line.match(new RegExp(`^(${NUM_CHARS}+(?:\\s+\\d+\\s*\\/\\s*\\d+)?)\\s+(?!${UNIT_PATTERN}\\b)(.+)$`, 'i'));
 	if (noUnit) {
 		const amount = parseFraction(noUnit[1]);
 		if (amount > 0) {
@@ -89,7 +113,6 @@ function parseIngredientLine(line, inSection) {
 	}
 
 	// Pattern C: no number  ("salt to taste", "fresh parsley, for garnish")
-	// Only apply confidently inside the ingredients section and for short lines
 	if (inSection && line.length < 60 && !SECTION_RE.test(line) && !VERB_RE.test(line)) {
 		return { amount: 1, unit: 'to taste', name: line.replace(/\s*[,;(].*$/, '').trim() };
 	}
@@ -107,15 +130,30 @@ function extractIngredients(lines, inSection) {
 	return results;
 }
 
+// Splits and re-numbers instruction steps so each step is on its own line.
+// Handles OCR output that collapses multiple steps onto a single line.
+function formatInstructions(lines) {
+	const expanded = [];
+	for (const line of lines) {
+		// Split on embedded step markers like "2. " or "2) " appearing mid-sentence
+		const parts = line.split(/\s+(?=\d+[\.\)]\s)/);
+		expanded.push(...parts.map(s => s.trim()).filter(Boolean));
+	}
+
+	const steps = expanded
+		.map(l => l.replace(/^\d+[\.\)]\s*/, '').replace(/^[\-•*·–—○◦▸►✓✗]\s*/, '').trim())
+		.filter(Boolean);
+
+	return steps.map((step, i) => `${i + 1}. ${step}`).join('\n');
+}
+
 function parseRecipeText(text) {
 	const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
 
-	// Recipe name: first meaningful non-header line
 	const recipeName =
 		lines.find(l => l.length > 3 && !SECTION_RE.test(l) && !/^\d/.test(l)) ??
 		'Imported Recipe';
 
-	// Times — try multiple keyword variations
 	const prepTime = extractTime(text, [
 		/prep(?:aration)?\s*time[:\s]+(?:(\d+)\s*(?:hr?s?|hours?)[\s,]*)?(?:(\d+)\s*(?:mins?|minutes?))?/i,
 		/prep(?:aration)?\s*time[:\s]+(\d+)\s*(?:hr?s?|hours?)/i,
@@ -129,7 +167,6 @@ function parseRecipeText(text) {
 		/cook(?:ing)?[:\s]+(?:(\d+)\s*(?:hr?s?|hours?)[\s,]*)?(?:(\d+)\s*(?:mins?|minutes?))/i,
 	]);
 
-	// Find section boundaries
 	const ingIdx = lines.findIndex(l => /^ingredients?/i.test(l));
 	const dirIdx = lines.findIndex(l => /^(instructions?|directions?|method|steps?)/i.test(l));
 	const inSection = ingIdx >= 0;
@@ -140,9 +177,8 @@ function parseRecipeText(text) {
 
 	const ingredients = extractIngredients(ingLines, inSection);
 
-	// Instructions: join numbered steps with newlines, preserving step numbers
 	const instructionLines = dirIdx >= 0 ? lines.slice(dirIdx + 1) : [];
-	const instructions = instructionLines.join('\n');
+	const instructions = formatInstructions(instructionLines);
 
 	return {
 		recipeName,

@@ -18,7 +18,7 @@ import { Svg, Path, Circle } from 'react-native-svg';
 import axios from 'axios';
 import { Colors } from '../../constants/colors';
 import { TAG_GROUPS } from '../../constants/tags';
-import { parseRecipeFromImage } from '../../utils/geminiRecipeParser';
+import { parseRecipeFromImage } from '../../utils/recipeParser';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080';
 const CLOUDINARY_CLOUD_NAME =
@@ -289,6 +289,12 @@ export default function AddRecipe() {
 					touched,
 				}) => (
 					<View style={styles.form}>
+						{/* Page header */}
+						<View style={styles.pageHeader}>
+							<Text style={styles.eyebrow}>Adding new</Text>
+							<Text style={styles.pageTitle}>A new recipe</Text>
+						</View>
+
 						{/* AI import banner */}
 						<Pressable
 							style={({ pressed }) => [
@@ -630,6 +636,24 @@ const styles = StyleSheet.create({
 	scrollContent: {
 		padding: 16,
 		paddingBottom: 48,
+		paddingTop: 20,
+	},
+	pageHeader: {
+		marginBottom: 16,
+	},
+	eyebrow: {
+		fontFamily: 'Nunito-Bold',
+		fontSize: 11,
+		letterSpacing: 1.1,
+		textTransform: 'uppercase',
+		color: Colors.blue700,
+		marginBottom: 2,
+	},
+	pageTitle: {
+		fontFamily: 'Nunito-ExtraBold',
+		fontSize: 30,
+		color: Colors.ink900,
+		letterSpacing: -0.7,
 	},
 	form: {
 		gap: 12,
